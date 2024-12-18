@@ -17,11 +17,12 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/v1/auth")
 public class AuthController {
 
-    private final AuthService authService;
+  private final AuthService authService;
 
-    @PostMapping("/signup")
-    public ResponseEntity<AuthPayload> signup(@Valid @RequestBody UserSignupPayload userSignupPayload) {
-        AuthPayload authPayload = authService.signUpUser(userSignupPayload);
-        return new ResponseEntity<>(authPayload, HttpStatus.CREATED);
-    }
+  @PostMapping("/signup")
+  public ResponseEntity<AuthPayload> signup(
+      @Valid @RequestBody UserSignupPayload userSignupPayload) {
+    AuthPayload authPayload = authService.signUpUser(userSignupPayload);
+    return new ResponseEntity<>(authPayload, HttpStatus.CREATED);
+  }
 }

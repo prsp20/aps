@@ -14,14 +14,15 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ProductPriceEntity {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-    private String guid;
-    private SubscriptionBasis subscriptionBasis;
-    private BigDecimal price;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id;
 
-    @ManyToOne
-    @JoinColumn(name = "product_id")
-    private ProductEntity product;
+  private String guid;
+  private SubscriptionBasis subscriptionBasis;
+  private BigDecimal price;
+
+  @ManyToOne
+  @JoinColumn(name = "product_id")
+  private ProductEntity product;
 }

@@ -14,19 +14,20 @@ import org.springframework.transaction.annotation.Transactional;
 @AllArgsConstructor
 @Service
 public class AuthService {
-    private UserAccountRepository userAccountRepository;
-    private PasswordEncoder passwordEncoder;
-    private UserAccountMapper userAccountMapper;
+  private UserAccountRepository userAccountRepository;
+  private PasswordEncoder passwordEncoder;
+  private UserAccountMapper userAccountMapper;
 
-    @Transactional
-    public AuthPayload signUpUser(UserSignupPayload userSignupPayload) {
-        if (userAccountRepository.existsByEmail(userSignupPayload.getEmail())){
-            throw new DuplicateEmailException("Email Already Exists");
-        }
-        UserAccountEntity userAccount = userAccountMapper.userSignupPayloadToUserAccountEntity(userSignupPayload);
-        userAccount.setPasswordHash(passwordEncoder.encode(userSignupPayload.getPassword()));
-        userAccountRepository.save(userAccount);
-
-        return userAccountMapper.userAccountEntityToAuthPayload(userAccount);
+  @Transactional
+  public AuthPayload signUpUser(UserSignupPayload userSignupPayload) {
+    if (userAccountRepository.existsByEmail(userSignupPayload.getEmail())) {
+      throw new DuplicateEmailException("Email Already Exists");
     }
+    UserAccountEntity userAccount =
+        userAccountMapper.userSignupPayloadToUserAccountEntity(userSignupPayload);
+    userAccount.setPasswordHash(passwordEncoder.encode(userSignupPayload.getPassword()));
+    userAccountRepository.save(userAccount);
+
+    return userAccountMapper.userAccountEntityToAuthPayload(userAccount);
+  }
 }

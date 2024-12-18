@@ -12,19 +12,22 @@ import org.springframework.security.web.SecurityFilterChain;
 @EnableWebSecurity
 public class SecurityConfig {
 
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new Argon2PasswordEncoder(16, 32, 1, 65536, 1);
-    }
+  @Bean
+  public PasswordEncoder passwordEncoder() {
+    int saltLength = 16;
+    int hashLength = 32;
+    int parallelism = 1;
+    int memory = 65536;
+    int iterations = 1;
+    return new Argon2PasswordEncoder(saltLength, hashLength, parallelism, memory, iterations);
+  }
 
-    @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        return http
-                .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/api/v1/auth").permitAll()
-                        .anyRequest().permitAll()
-                )
-                .csrf(csrf -> csrf.disable())
-                .build();
-    }
+  @Bean
+  public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    return http.authorizeHttpRequests(
+            authorize ->
+                authorize.requestMatchers("/api/v1/auth").permitAll().anyRequest().permitAll())
+        .csrf(csrf -> csrf.disable())
+        .build();
+  }
 }

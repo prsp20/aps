@@ -27,120 +27,129 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebMvcTest(controllers = AuthController.class)
 @Import(SecurityConfig.class)
 public class AuthControllerTest {
-    @Autowired
-    private MockMvc mockMvc;
+  @Autowired private MockMvc mockMvc;
 
-    @MockitoBean
-    private AuthService authService;
+  @MockitoBean private AuthService authService;
 
-    private ObjectMapper objectMapper;
+  private ObjectMapper objectMapper;
 
-    @BeforeEach
-    void setUp() {
-        objectMapper = new ObjectMapper();
-    }
+  @BeforeEach
+  void setUp() {
+    objectMapper = new ObjectMapper();
+  }
 
-    @Test
-    void SignUp_should_returnIsCreatedStatus() throws Exception {
-        UserSignupPayload userSignupPayload = new UserSignupPayload();
-        userSignupPayload.setEmail("john-doe@mail.com");
-        userSignupPayload.setPassword("password");
-        userSignupPayload.setFirstName("John");
-        userSignupPayload.setLastName("Doe");
+  @Test
+  void SignUp_should_returnIsCreatedStatus() throws Exception {
+    UserSignupPayload userSignupPayload = new UserSignupPayload();
+    userSignupPayload.setEmail("john-doe@mail.com");
+    userSignupPayload.setPassword("password");
+    userSignupPayload.setFirstName("John");
+    userSignupPayload.setLastName("Doe");
 
-        LocalDateTime now = LocalDateTime.of(2024, 12, 16, 23, 15, 20);
+    LocalDateTime now = LocalDateTime.of(2024, 12, 16, 23, 15, 20);
 
-        AuthPayload authPayload = new AuthPayload();
-        authPayload.setEmail("john-doe@mail.com");
-        authPayload.setGuid("unique-guid");
-        authPayload.setCreatedAt(now);
-        authPayload.setFirstName("John");
-        authPayload.setLastName("Doe");
+    AuthPayload authPayload = new AuthPayload();
+    authPayload.setEmail("john-doe@mail.com");
+    authPayload.setGuid("unique-guid");
+    authPayload.setCreatedAt(now);
+    authPayload.setFirstName("John");
+    authPayload.setLastName("Doe");
 
-        when(authService.signUpUser(userSignupPayload)).thenReturn(authPayload);
+    when(authService.signUpUser(userSignupPayload)).thenReturn(authPayload);
 
-        mockMvc.perform(post("/api/v1/auth/signup")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(userSignupPayload)))
-                .andExpect(status().isCreated())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.firstName").value(authPayload.getFirstName()))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.lastName").value(authPayload.getLastName()))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.guid").value(authPayload.getGuid()))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.email").value(authPayload.getEmail()))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.createdAt").value(equalTo(authPayload.getCreatedAt().toString())));
-    }
+    mockMvc
+        .perform(
+            post("/api/v1/auth/signup")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(userSignupPayload)))
+        .andExpect(status().isCreated())
+        .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+        .andExpect(MockMvcResultMatchers.jsonPath("$.firstName").value(authPayload.getFirstName()))
+        .andExpect(MockMvcResultMatchers.jsonPath("$.lastName").value(authPayload.getLastName()))
+        .andExpect(MockMvcResultMatchers.jsonPath("$.guid").value(authPayload.getGuid()))
+        .andExpect(MockMvcResultMatchers.jsonPath("$.email").value(authPayload.getEmail()))
+        .andExpect(MockMvcResultMatchers.jsonPath("$.createdAt")
+                .value(equalTo(authPayload.getCreatedAt().toString())));
+  }
 
-    @Test
-    void SignUp_should_rejectMissingEmail() throws Exception {
-        UserSignupPayload userSignupPayload = new UserSignupPayload();
-        userSignupPayload.setPassword("password");
-        userSignupPayload.setFirstName("John");
-        userSignupPayload.setLastName("Doe");
+  @Test
+  void SignUp_should_rejectMissingEmail() throws Exception {
+    UserSignupPayload userSignupPayload = new UserSignupPayload();
+    userSignupPayload.setPassword("password");
+    userSignupPayload.setFirstName("John");
+    userSignupPayload.setLastName("Doe");
 
-        mockMvc.perform(post("/api/v1/auth/signup")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(userSignupPayload)))
-                .andExpect(status().isBadRequest())
-                .andExpect(content().string(containsString("Email is required")));
-    }
+    mockMvc
+        .perform(
+            post("/api/v1/auth/signup")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(userSignupPayload)))
+        .andExpect(status().isBadRequest())
+        .andExpect(content().string(containsString("Email is required")));
+  }
 
-    @Test
-    void SignUp_should_rejectInvalidEmail() throws Exception {
-        UserSignupPayload userSignupPayload = new UserSignupPayload();
-        userSignupPayload.setEmail("john-doe.com");
-        userSignupPayload.setPassword("password");
-        userSignupPayload.setFirstName("John");
-        userSignupPayload.setLastName("Doe");
+  @Test
+  void SignUp_should_rejectInvalidEmail() throws Exception {
+    UserSignupPayload userSignupPayload = new UserSignupPayload();
+    userSignupPayload.setEmail("john-doe.com");
+    userSignupPayload.setPassword("password");
+    userSignupPayload.setFirstName("John");
+    userSignupPayload.setLastName("Doe");
 
-        mockMvc.perform(post("/api/v1/auth/signup")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(userSignupPayload)))
-                .andExpect(status().isBadRequest())
-                .andExpect(content().string(containsString("Invalid email format")));
-    }
+    mockMvc
+        .perform(
+            post("/api/v1/auth/signup")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(userSignupPayload)))
+        .andExpect(status().isBadRequest())
+        .andExpect(content().string(containsString("Invalid email format")));
+  }
 
-    @Test
-    void SignUp_should_rejectMissingPassword() throws Exception {
-        UserSignupPayload userSignupPayload = new UserSignupPayload();
-        userSignupPayload.setEmail("john-doe@mail.com");
-        userSignupPayload.setFirstName("John");
-        userSignupPayload.setLastName("Doe");
+  @Test
+  void SignUp_should_rejectMissingPassword() throws Exception {
+    UserSignupPayload userSignupPayload = new UserSignupPayload();
+    userSignupPayload.setEmail("john-doe@mail.com");
+    userSignupPayload.setFirstName("John");
+    userSignupPayload.setLastName("Doe");
 
-        mockMvc.perform(post("/api/v1/auth/signup")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(userSignupPayload)))
-                .andExpect(status().isBadRequest())
-                .andExpect(content().string(containsString("Password is required")));
-    }
+    mockMvc
+        .perform(
+            post("/api/v1/auth/signup")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(userSignupPayload)))
+        .andExpect(status().isBadRequest())
+        .andExpect(content().string(containsString("Password is required")));
+  }
 
-    @Test
-    void SignUp_should_rejectMissingFirstName() throws Exception {
-        UserSignupPayload userSignupPayload = new UserSignupPayload();
-        userSignupPayload.setEmail("john-doe@mail.com");
-        userSignupPayload.setPassword("random-pass");
-        userSignupPayload.setLastName("Doe");
+  @Test
+  void SignUp_should_rejectMissingFirstName() throws Exception {
+    UserSignupPayload userSignupPayload = new UserSignupPayload();
+    userSignupPayload.setEmail("john-doe@mail.com");
+    userSignupPayload.setPassword("random-pass");
+    userSignupPayload.setLastName("Doe");
 
-        mockMvc.perform(post("/api/v1/auth/signup")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(userSignupPayload)))
-                .andExpect(status().isBadRequest())
-                .andExpect(content().string(containsString("First name is required")));
-    }
+    mockMvc
+        .perform(
+            post("/api/v1/auth/signup")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(userSignupPayload)))
+        .andExpect(status().isBadRequest())
+        .andExpect(content().string(containsString("First name is required")));
+  }
 
-    @Test
-    void SignUp_should_rejectMissingLastName() throws Exception {
-        UserSignupPayload userSignupPayload = new UserSignupPayload();
-        userSignupPayload.setEmail("john-doe@mail.com");
-        userSignupPayload.setPassword("random-pass");
-        userSignupPayload.setFirstName("John");
+  @Test
+  void SignUp_should_rejectMissingLastName() throws Exception {
+    UserSignupPayload userSignupPayload = new UserSignupPayload();
+    userSignupPayload.setEmail("john-doe@mail.com");
+    userSignupPayload.setPassword("random-pass");
+    userSignupPayload.setFirstName("John");
 
-        mockMvc.perform(post("/api/v1/auth/signup")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(userSignupPayload)))
-                .andExpect(status().isBadRequest())
-                .andExpect(content().string(containsString("Last name is required")));
-    }
-
-
+    mockMvc
+        .perform(
+            post("/api/v1/auth/signup")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(userSignupPayload)))
+        .andExpect(status().isBadRequest())
+        .andExpect(content().string(containsString("Last name is required")));
+  }
 }

@@ -15,22 +15,22 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UserProfileEntity {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id;
 
-    private String guid;
+  private String guid;
 
-    @ManyToOne
-    @JoinColumn(name = "user_id")
-    private UserAccountEntity userAccount;
+  @ManyToOne
+  @JoinColumn(name = "user_id")
+  private UserAccountEntity userAccount;
 
-    private String profilePicture;
-    private LocalDate dateOfBirth;
-    private String timezone;
-    private String preferredLanguage;
+  private String profilePicture;
+  private LocalDate dateOfBirth;
+  private String timezone;
+  private String preferredLanguage;
 
-    @ManyToOne
-    @JoinColumn(name = "address_id")
-    private AddressEntity address;
+  @ManyToOne
+  @JoinColumn(name = "address_id")
+  private AddressEntity address;
 }

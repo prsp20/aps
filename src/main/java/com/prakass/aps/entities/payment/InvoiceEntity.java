@@ -16,18 +16,18 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class InvoiceEntity {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id;
 
-    private String guid;
+  private String guid;
 
-    @ManyToOne
-    @JoinColumn(name = "subscription_id")
-    private SubscriptionEntity subscription;
+  @ManyToOne
+  @JoinColumn(name = "subscription_id")
+  private SubscriptionEntity subscription;
 
-    private LocalDateTime invoiceDate;
-    private LocalDateTime dueDate;
-    private BigDecimal amount;
-    private boolean paid;
+  private LocalDateTime invoiceDate;
+  private LocalDateTime dueDate;
+  private BigDecimal amount;
+  private boolean paid;
 }

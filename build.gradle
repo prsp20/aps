@@ -4,6 +4,7 @@ plugins {
 	id 'io.spring.dependency-management' version '1.1.6'
 	id 'org.hibernate.orm' version '6.6.3.Final'
 	id 'org.graalvm.buildtools.native' version '0.10.4'
+	id 'com.diffplug.spotless' version '6.25.0'
 }
 
 group = 'com.prakass'
@@ -33,15 +34,15 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
 	implementation 'org.springframework.boot:spring-boot-starter-security'
 	implementation 'org.springframework.security:spring-security-crypto:6.3.0'
-	testImplementation 'org.springframework.security:spring-security-test'
 	implementation 'org.postgresql:postgresql:42.7.3'
 	implementation 'org.mapstruct:mapstruct:1.6.0'
 	implementation 'org.bouncycastle:bcprov-jdk18on:1.79'
 	compileOnly 'org.projectlombok:lombok'
-	developmentOnly 'org.springframework.boot:spring-boot-devtools'
 	annotationProcessor 'org.projectlombok:lombok'
 	annotationProcessor 'org.mapstruct:mapstruct-processor:1.6.0'
+	developmentOnly 'org.springframework.boot:spring-boot-devtools'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	testImplementation 'org.springframework.security:spring-security-test'
 	testImplementation 'org.mockito:mockito-core:5.14.2'
 	testImplementation 'com.h2database:h2'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
@@ -51,6 +52,19 @@ hibernate {
 	enhancement {
 		enableAssociationManagement = true
 	}
+}
+
+spotless {
+	java {
+		googleJavaFormat()
+	}
+}
+
+tasks.check.dependsOn 'spotlessApply'
+
+tasks {
+	compileJava {}
+	spotlessApply {}
 }
 
 tasks.named('test') {

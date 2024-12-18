@@ -13,15 +13,15 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UserPreviousPasswordEntity {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id;
 
-    private String guid;
+  private String guid;
 
-    @ManyToOne
-    @JoinColumn(name = "user_account_id")
-    private UserAccountEntity userAccount;
+  @ManyToOne
+  @JoinColumn(name = "user_account_id")
+  private UserAccountEntity userAccount;
 
-    private String passwordHash;
+  private String passwordHash;
 }

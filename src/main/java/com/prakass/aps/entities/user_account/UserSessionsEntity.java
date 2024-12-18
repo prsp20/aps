@@ -14,18 +14,18 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UserSessionsEntity {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id;
 
-    private String guid;
+  private String guid;
 
-    @ManyToOne
-    @JoinColumn(name = "user_id")
-    private UserAccountEntity userAccount;
+  @ManyToOne
+  @JoinColumn(name = "user_id")
+  private UserAccountEntity userAccount;
 
-    private String jwtToken;
-    private LocalDateTime createdAt;
-    private LocalDateTime expiresAt;
-    private boolean revoked;
+  private String jwtToken;
+  private LocalDateTime createdAt;
+  private LocalDateTime expiresAt;
+  private boolean revoked;
 }
