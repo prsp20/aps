@@ -3,12 +3,13 @@ package com.prakass.aps.mapper;
 import com.prakass.aps.dto.AuthPayload;
 import com.prakass.aps.dto.UserSignupPayload;
 import com.prakass.aps.entities.user_account.UserAccountEntity;
-import java.time.LocalDateTime;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+
+import java.time.LocalDateTime;
 
 @SpringBootTest
 public class UserAccountMapperTest {
@@ -26,7 +27,7 @@ public class UserAccountMapperTest {
   }
 
   @Test
-  void userSignupPayloadToUserAccountEntity_should_convert_userSignupPayloadToUserAccountEntity() {
+  void userSignupPayloadToUserAccountEntityShouldConvertUserSignupPayloadToUserAccountEntity() {
     UserAccountEntity mappedUserAccountEntity =
         userAccountMapper.userSignupPayloadToUserAccountEntity(userSignupPayload);
 
@@ -40,7 +41,7 @@ public class UserAccountMapperTest {
   }
 
   @Test
-  void userSignUpPayloadToUserAccountEntity_should_ignore_password() {
+  void userSignUpPayloadToUserAccountEntityShouldIgnorePassword() {
 
     UserAccountEntity mappedUserAccountEntity =
         userAccountMapper.userSignupPayloadToUserAccountEntity(userSignupPayload);
@@ -49,7 +50,7 @@ public class UserAccountMapperTest {
   }
 
   @Test
-  void userSignUpPayloadToUserAccountEntity_should_generate_unique_uuid() {
+  void userSignUpPayloadToUserAccountEntityShouldGenerateUniqueGuid() {
     UserAccountEntity mappedUserAccountEntity =
         userAccountMapper.userSignupPayloadToUserAccountEntity(userSignupPayload);
 
@@ -61,7 +62,7 @@ public class UserAccountMapperTest {
   }
 
   @Test
-  void userSignUpPayloadToUserAccountEntity_should_generate_current_timestamp_for_createdAt() {
+  void userSignUpPayloadToUserAccountEntityShouldGenerateCurrentTimestampForCreatedAt() {
     UserAccountEntity mappedUserAccountEntity =
         userAccountMapper.userSignupPayloadToUserAccountEntity(userSignupPayload);
 
@@ -73,7 +74,7 @@ public class UserAccountMapperTest {
   }
 
   @Test
-  void userAccountEntityToAuthPayload_should_convert_userAccountEntityToAuthPayload() {
+  void userAccountEntityToAuthPayloadShouldConvertUserAccountEntityToAuthPayload() {
     UserAccountEntity userAccountEntity = new UserAccountEntity();
     userAccountEntity.setFirstName("John");
     userAccountEntity.setLastName("Doe");

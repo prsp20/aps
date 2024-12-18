@@ -5,6 +5,7 @@ import com.prakass.aps.config.SecurityConfig;
 import com.prakass.aps.dto.AuthPayload;
 import com.prakass.aps.dto.UserSignupPayload;
 import com.prakass.aps.service.AuthService;
+import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,21 +40,25 @@ public class AuthControllerTest {
   }
 
   @Test
-  void SignUp_should_returnIsCreatedStatus() throws Exception {
-    UserSignupPayload userSignupPayload = new UserSignupPayload();
-    userSignupPayload.setEmail("john-doe@mail.com");
-    userSignupPayload.setPassword("password");
-    userSignupPayload.setFirstName("John");
-    userSignupPayload.setLastName("Doe");
+  void signUpShouldReturnIsCreatedStatus() throws Exception {
+    UserSignupPayload userSignupPayload =
+        UserSignupPayload.builder()
+            .email("john-doe@mail.com")
+            .password("password")
+            .firstName("John")
+            .lastName("Doe")
+            .build();
 
     LocalDateTime now = LocalDateTime.of(2024, 12, 16, 23, 15, 20);
 
-    AuthPayload authPayload = new AuthPayload();
-    authPayload.setEmail("john-doe@mail.com");
-    authPayload.setGuid("unique-guid");
-    authPayload.setCreatedAt(now);
-    authPayload.setFirstName("John");
-    authPayload.setLastName("Doe");
+    AuthPayload authPayload =
+        AuthPayload.builder()
+            .email(userSignupPayload.getEmail())
+            .firstName(userSignupPayload.getFirstName())
+            .lastName(userSignupPayload.getLastName())
+            .createdAt(now)
+            .Guid("unique-guid")
+            .build();
 
     when(authService.signUpUser(userSignupPayload)).thenReturn(authPayload);
 
@@ -68,33 +73,20 @@ public class AuthControllerTest {
         .andExpect(MockMvcResultMatchers.jsonPath("$.lastName").value(authPayload.getLastName()))
         .andExpect(MockMvcResultMatchers.jsonPath("$.guid").value(authPayload.getGuid()))
         .andExpect(MockMvcResultMatchers.jsonPath("$.email").value(authPayload.getEmail()))
-        .andExpect(MockMvcResultMatchers.jsonPath("$.createdAt")
+        .andExpect(
+            MockMvcResultMatchers.jsonPath("$.createdAt")
                 .value(equalTo(authPayload.getCreatedAt().toString())));
   }
 
   @Test
-  void SignUp_should_rejectMissingEmail() throws Exception {
-    UserSignupPayload userSignupPayload = new UserSignupPayload();
-    userSignupPayload.setPassword("password");
-    userSignupPayload.setFirstName("John");
-    userSignupPayload.setLastName("Doe");
-
-    mockMvc
-        .perform(
-            post("/api/v1/auth/signup")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(userSignupPayload)))
-        .andExpect(status().isBadRequest())
-        .andExpect(content().string(containsString("Email is required")));
-  }
-
-  @Test
-  void SignUp_should_rejectInvalidEmail() throws Exception {
-    UserSignupPayload userSignupPayload = new UserSignupPayload();
-    userSignupPayload.setEmail("john-doe.com");
-    userSignupPayload.setPassword("password");
-    userSignupPayload.setFirstName("John");
-    userSignupPayload.setLastName("Doe");
+  void signUpShouldRejectInvalidEmail() throws Exception {
+    UserSignupPayload userSignupPayload =
+        UserSignupPayload.builder()
+            .email("john-doe.com")
+            .password("password")
+            .firstName("John")
+            .lastName("Doe")
+            .build();
 
     mockMvc
         .perform(
@@ -106,11 +98,14 @@ public class AuthControllerTest {
   }
 
   @Test
-  void SignUp_should_rejectMissingPassword() throws Exception {
-    UserSignupPayload userSignupPayload = new UserSignupPayload();
-    userSignupPayload.setEmail("john-doe@mail.com");
-    userSignupPayload.setFirstName("John");
-    userSignupPayload.setLastName("Doe");
+  void signUpShouldReturnValidationMessagesOnInvalidPayload() throws Exception {
+    UserSignupPayload userSignupPayload = UserSignupPayload.builder().build();
+    String[] expectedMessages = {
+      "Password is required",
+      "Email is required",
+      "First name is required",
+      "Last name is required",
+    };
 
     mockMvc
         .perform(
@@ -118,38 +113,9 @@ public class AuthControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(userSignupPayload)))
         .andExpect(status().isBadRequest())
-        .andExpect(content().string(containsString("Password is required")));
-  }
-
-  @Test
-  void SignUp_should_rejectMissingFirstName() throws Exception {
-    UserSignupPayload userSignupPayload = new UserSignupPayload();
-    userSignupPayload.setEmail("john-doe@mail.com");
-    userSignupPayload.setPassword("random-pass");
-    userSignupPayload.setLastName("Doe");
-
-    mockMvc
-        .perform(
-            post("/api/v1/auth/signup")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(userSignupPayload)))
-        .andExpect(status().isBadRequest())
-        .andExpect(content().string(containsString("First name is required")));
-  }
-
-  @Test
-  void SignUp_should_rejectMissingLastName() throws Exception {
-    UserSignupPayload userSignupPayload = new UserSignupPayload();
-    userSignupPayload.setEmail("john-doe@mail.com");
-    userSignupPayload.setPassword("random-pass");
-    userSignupPayload.setFirstName("John");
-
-    mockMvc
-        .perform(
-            post("/api/v1/auth/signup")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(userSignupPayload)))
-        .andExpect(status().isBadRequest())
-        .andExpect(content().string(containsString("Last name is required")));
+        .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+        .andExpect(
+            MockMvcResultMatchers.jsonPath("$.validation_errors[*].message")
+                .value(Matchers.hasItems(expectedMessages)));
   }
 }

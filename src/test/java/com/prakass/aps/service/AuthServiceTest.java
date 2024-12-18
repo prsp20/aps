@@ -1,10 +1,5 @@
 package com.prakass.aps.service;
 
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 import com.prakass.aps.common.exception.DuplicateEmailException;
 import com.prakass.aps.dao.UserAccountRepository;
 import com.prakass.aps.dto.UserSignupPayload;
@@ -17,6 +12,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
+
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @SpringBootTest
 public class AuthServiceTest {
@@ -41,7 +41,7 @@ public class AuthServiceTest {
 
   @Test
   @Transactional
-  public void signUp_should_callSaveMethodForSignUpWithUniqueEmail() {
+  public void signUpShouldCallSaveMethodForSignUpWithUniqueEmail() {
     when(userAccountRepository.existsByEmail(userSignupPayload.getEmail()))
         .thenReturn(Boolean.FALSE);
 
@@ -51,7 +51,7 @@ public class AuthServiceTest {
 
   @Test
   @Transactional
-  public void signUp_should_throwDuplicateEmailExceptionForSignUpWithExistingEmail() {
+  public void signUpShouldThrowDuplicateEmailExceptionForSignUpWithExistingEmail() {
     when(userAccountRepository.existsByEmail(userSignupPayload.getEmail()))
         .thenReturn(Boolean.TRUE);
 
@@ -62,7 +62,7 @@ public class AuthServiceTest {
 
   @Test
   @Transactional
-  public void signUp_should_callPasswordEncoderForSignUpWithUniqueEmail() {
+  public void signUpShouldCallPasswordEncoderForSignUpWithUniqueEmail() {
     when(userAccountRepository.existsByEmail(userSignupPayload.getEmail()))
         .thenReturn(Boolean.FALSE);
 
