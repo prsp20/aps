@@ -20,12 +20,12 @@ public class AuthService {
 
   @Transactional
   public AuthPayload signUpUser(UserSignupPayload userSignupPayload) {
-    if (userAccountRepository.existsByEmail(userSignupPayload.getEmail())) {
+    if (userAccountRepository.existsByEmail(userSignupPayload.email())) {
       throw new DuplicateEmailException("Email Already Exists");
     }
     UserAccountEntity userAccount =
         userAccountMapper.userSignupPayloadToUserAccountEntity(userSignupPayload);
-    userAccount.setPasswordHash(passwordEncoder.encode(userSignupPayload.getPassword()));
+    userAccount.setPasswordHash(passwordEncoder.encode(userSignupPayload.password()));
     userAccountRepository.save(userAccount);
 
     return userAccountMapper.userAccountEntityToAuthPayload(userAccount);

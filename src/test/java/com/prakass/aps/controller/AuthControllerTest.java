@@ -53,11 +53,11 @@ public class AuthControllerTest {
 
     AuthPayload authPayload =
         AuthPayload.builder()
-            .email(userSignupPayload.getEmail())
-            .firstName(userSignupPayload.getFirstName())
-            .lastName(userSignupPayload.getLastName())
+            .email(userSignupPayload.email())
+            .firstName(userSignupPayload.firstName())
+            .lastName(userSignupPayload.lastName())
             .createdAt(now)
-            .Guid("unique-guid")
+            .guid("unique-guid")
             .build();
 
     when(authService.signUpUser(userSignupPayload)).thenReturn(authPayload);
@@ -69,13 +69,13 @@ public class AuthControllerTest {
                 .content(objectMapper.writeValueAsString(userSignupPayload)))
         .andExpect(status().isCreated())
         .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-        .andExpect(MockMvcResultMatchers.jsonPath("$.firstName").value(authPayload.getFirstName()))
-        .andExpect(MockMvcResultMatchers.jsonPath("$.lastName").value(authPayload.getLastName()))
-        .andExpect(MockMvcResultMatchers.jsonPath("$.guid").value(authPayload.getGuid()))
-        .andExpect(MockMvcResultMatchers.jsonPath("$.email").value(authPayload.getEmail()))
+        .andExpect(MockMvcResultMatchers.jsonPath("$.firstName").value(authPayload.firstName()))
+        .andExpect(MockMvcResultMatchers.jsonPath("$.lastName").value(authPayload.lastName()))
+        .andExpect(MockMvcResultMatchers.jsonPath("$.guid").value(authPayload.guid()))
+        .andExpect(MockMvcResultMatchers.jsonPath("$.email").value(authPayload.email()))
         .andExpect(
             MockMvcResultMatchers.jsonPath("$.createdAt")
-                .value(equalTo(authPayload.getCreatedAt().toString())));
+                .value(equalTo(authPayload.createdAt().toString())));
   }
 
   @Test

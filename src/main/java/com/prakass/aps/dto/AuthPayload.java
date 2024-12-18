@@ -1,19 +1,9 @@
 package com.prakass.aps.dto;
 
-import lombok.*;
+import lombok.Builder;
 
 import java.time.LocalDateTime;
 
-@Data
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
 @Builder
-public class AuthPayload {
-  private String Guid;
-  private String email;
-  private String firstName;
-  private String lastName;
-  private LocalDateTime createdAt;
-}
+public record AuthPayload(
+    String guid, String email, String firstName, String lastName, LocalDateTime createdAt) {}

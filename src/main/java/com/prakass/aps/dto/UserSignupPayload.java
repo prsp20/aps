@@ -5,23 +5,9 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import lombok.*;
 
-@Data
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
 @Builder
-public class UserSignupPayload {
-  @NotBlank(message = "Email is required")
-  @Email(message = "Invalid email format")
-  private String email;
-
-  @NotEmpty(message = "Password is required")
-  private String password;
-
-  @NotBlank(message = "First name is required")
-  private String firstName;
-
-  @NotBlank(message = "Last name is required")
-  private String lastName;
-}
+public record UserSignupPayload(
+    @NotBlank(message = "Email is required") @Email(message = "Invalid email format") String email,
+    @NotEmpty(message = "Password is required") String password,
+    @NotBlank(message = "First name is required") String firstName,
+    @NotBlank(message = "Last name is required") String lastName) {}

@@ -19,11 +19,13 @@ public class UserAccountMapperTest {
 
   @BeforeEach
   void setUpUserAccountMapper() {
-    userSignupPayload = new UserSignupPayload();
-    userSignupPayload.setFirstName("John");
-    userSignupPayload.setLastName("Doe");
-    userSignupPayload.setEmail("john@doe.com");
-    userSignupPayload.setPassword("password");
+    userSignupPayload =
+        UserSignupPayload.builder()
+            .email("john@doe.com")
+            .password("password")
+            .firstName("John")
+            .lastName("Doe")
+            .build();
   }
 
   @Test
@@ -33,11 +35,10 @@ public class UserAccountMapperTest {
 
     Assertions.assertThat(mappedUserAccountEntity).isNotNull();
     Assertions.assertThat(mappedUserAccountEntity.getFirstName())
-        .isEqualTo(userSignupPayload.getFirstName());
+        .isEqualTo(userSignupPayload.firstName());
     Assertions.assertThat(mappedUserAccountEntity.getLastName())
-        .isEqualTo(userSignupPayload.getLastName());
-    Assertions.assertThat(mappedUserAccountEntity.getEmail())
-        .isEqualTo(userSignupPayload.getEmail());
+        .isEqualTo(userSignupPayload.lastName());
+    Assertions.assertThat(mappedUserAccountEntity.getEmail()).isEqualTo(userSignupPayload.email());
   }
 
   @Test
@@ -85,10 +86,10 @@ public class UserAccountMapperTest {
     AuthPayload authPayload = userAccountMapper.userAccountEntityToAuthPayload(userAccountEntity);
 
     Assertions.assertThat(authPayload).isNotNull();
-    Assertions.assertThat(authPayload.getFirstName()).isEqualTo(userAccountEntity.getFirstName());
-    Assertions.assertThat(authPayload.getLastName()).isEqualTo(userAccountEntity.getLastName());
-    Assertions.assertThat(authPayload.getEmail()).isEqualTo(userAccountEntity.getEmail());
-    Assertions.assertThat(authPayload.getCreatedAt()).isEqualTo(userAccountEntity.getCreatedAt());
-    Assertions.assertThat(authPayload.getGuid()).isEqualTo(userAccountEntity.getGuid());
+    Assertions.assertThat(authPayload.firstName()).isEqualTo(userAccountEntity.getFirstName());
+    Assertions.assertThat(authPayload.lastName()).isEqualTo(userAccountEntity.getLastName());
+    Assertions.assertThat(authPayload.email()).isEqualTo(userAccountEntity.getEmail());
+    Assertions.assertThat(authPayload.createdAt()).isEqualTo(userAccountEntity.getCreatedAt());
+    Assertions.assertThat(authPayload.guid()).isEqualTo(userAccountEntity.getGuid());
   }
 }

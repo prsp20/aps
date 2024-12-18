@@ -32,18 +32,19 @@ public class AuthServiceTest {
   @BeforeEach
   public void setUp() {
     authService = new AuthService(userAccountRepository, passwordEncoder, userAccountMapper);
-    userSignupPayload = new UserSignupPayload();
-    userSignupPayload.setEmail("unique-mail@email.com");
-    userSignupPayload.setPassword("password");
-    userSignupPayload.setFirstName("firstName");
-    userSignupPayload.setLastName("lastName");
+    userSignupPayload =
+        UserSignupPayload.builder()
+            .email("unique-mail@email.com")
+            .password("password")
+            .firstName("firstName")
+            .lastName("lastName")
+            .build();
   }
 
   @Test
   @Transactional
   public void signUpShouldCallSaveMethodForSignUpWithUniqueEmail() {
-    when(userAccountRepository.existsByEmail(userSignupPayload.getEmail()))
-        .thenReturn(Boolean.FALSE);
+    when(userAccountRepository.existsByEmail(userSignupPayload.email())).thenReturn(Boolean.FALSE);
 
     authService.signUpUser(userSignupPayload);
     verify(userAccountRepository).save(any(UserAccountEntity.class));
@@ -52,8 +53,7 @@ public class AuthServiceTest {
   @Test
   @Transactional
   public void signUpShouldThrowDuplicateEmailExceptionForSignUpWithExistingEmail() {
-    when(userAccountRepository.existsByEmail(userSignupPayload.getEmail()))
-        .thenReturn(Boolean.TRUE);
+    when(userAccountRepository.existsByEmail(userSignupPayload.email())).thenReturn(Boolean.TRUE);
 
     assertThatThrownBy(() -> authService.signUpUser(userSignupPayload))
         .isInstanceOf(DuplicateEmailException.class)
@@ -63,10 +63,9 @@ public class AuthServiceTest {
   @Test
   @Transactional
   public void signUpShouldCallPasswordEncoderForSignUpWithUniqueEmail() {
-    when(userAccountRepository.existsByEmail(userSignupPayload.getEmail()))
-        .thenReturn(Boolean.FALSE);
+    when(userAccountRepository.existsByEmail(userSignupPayload.email())).thenReturn(Boolean.FALSE);
 
     authService.signUpUser(userSignupPayload);
-    verify(passwordEncoder).encode(userSignupPayload.getPassword());
+    verify(passwordEncoder).encode(userSignupPayload.password());
   }
 }
