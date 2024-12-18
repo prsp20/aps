@@ -1,32 +1,46 @@
 package com.prakass.aps.common.handler;
 
+import com.prakass.aps.common.dto.ObjectErrorToListOfFieldError;
+import com.prakass.aps.common.dto.ResponseDto;
+import com.prakass.aps.common.dto.ValidationError;
 import com.prakass.aps.common.exception.DuplicateEmailException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
+import java.util.List;
+
 @ControllerAdvice
+@Slf4j
 public class GlobalExceptionHandler {
   @ExceptionHandler(DuplicateEmailException.class)
-  public ResponseEntity<String> handleDuplicateEmailException(DuplicateEmailException e) {
-    return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
+  public ResponseEntity<ResponseDto> handleDuplicateEmailException(DuplicateEmailException e) {
+    return ResponseEntity.status(HttpStatus.CONFLICT)
+        .body(ResponseDto.builder().status("failure").message(e.getMessage()).build());
   }
 
   @ExceptionHandler(MethodArgumentNotValidException.class)
-  public ResponseEntity<String> handleMethodArgumentNotValidException(
+  public ResponseEntity<ResponseDto> handleMethodArgumentNotValidException(
       MethodArgumentNotValidException e) {
-    String errorMessage = e.getBindingResult().getAllErrors().getFirst().getDefaultMessage();
-    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorMessage);
+    List<ValidationError> fieldErrors = ObjectErrorToListOfFieldError.getFieldErrors(e);
+    return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+        .contentType(MediaType.APPLICATION_JSON)
+        .body(ResponseDto.builder().status("failure").validationErrors(fieldErrors).build());
   }
 
   @ExceptionHandler(Exception.class)
-  public ResponseEntity<String> handleException(Exception e) {
-    // TODO implement logger
-    e.printStackTrace();
+  public ResponseEntity<ResponseDto> handleException(Exception e) {
+    log.error(e.getMessage());
 
     return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-        .body("An unexpected error occurred");
+        .body(
+            ResponseDto.builder()
+                .status("failure")
+                .message("An unexpected error occurred")
+                .build());
   }
 }
