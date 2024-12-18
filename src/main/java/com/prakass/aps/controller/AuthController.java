@@ -1,6 +1,6 @@
 package com.prakass.aps.controller;
 
-import com.prakass.aps.dto.AuthPayload;
+import com.prakass.aps.dto.SignUpResponsePayload;
 import com.prakass.aps.dto.UserSignupPayload;
 import com.prakass.aps.service.AuthService;
 import jakarta.validation.Valid;
@@ -20,9 +20,9 @@ public class AuthController {
   private final AuthService authService;
 
   @PostMapping("/signup")
-  public ResponseEntity<AuthPayload> signup(
+  public ResponseEntity<SignUpResponsePayload> signup(
       @Valid @RequestBody UserSignupPayload userSignupPayload) {
-    AuthPayload authPayload = authService.signUpUser(userSignupPayload);
-    return new ResponseEntity<>(authPayload, HttpStatus.CREATED);
+    SignUpResponsePayload signUpResponsePayload = authService.signUpUser(userSignupPayload);
+    return new ResponseEntity<>(signUpResponsePayload, HttpStatus.CREATED);
   }
 }

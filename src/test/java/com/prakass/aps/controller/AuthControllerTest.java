@@ -2,7 +2,7 @@ package com.prakass.aps.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.prakass.aps.config.SecurityConfig;
-import com.prakass.aps.dto.AuthPayload;
+import com.prakass.aps.dto.SignUpResponsePayload;
 import com.prakass.aps.dto.UserSignupPayload;
 import com.prakass.aps.service.AuthService;
 import org.hamcrest.Matchers;
@@ -51,8 +51,8 @@ public class AuthControllerTest {
 
     LocalDateTime now = LocalDateTime.of(2024, 12, 16, 23, 15, 20);
 
-    AuthPayload authPayload =
-        AuthPayload.builder()
+    SignUpResponsePayload signUpResponsePayload =
+        SignUpResponsePayload.builder()
             .email(userSignupPayload.email())
             .firstName(userSignupPayload.firstName())
             .lastName(userSignupPayload.lastName())
@@ -60,7 +60,7 @@ public class AuthControllerTest {
             .guid("unique-guid")
             .build();
 
-    when(authService.signUpUser(userSignupPayload)).thenReturn(authPayload);
+    when(authService.signUpUser(userSignupPayload)).thenReturn(signUpResponsePayload);
 
     mockMvc
         .perform(
@@ -69,13 +69,15 @@ public class AuthControllerTest {
                 .content(objectMapper.writeValueAsString(userSignupPayload)))
         .andExpect(status().isCreated())
         .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-        .andExpect(MockMvcResultMatchers.jsonPath("$.firstName").value(authPayload.firstName()))
-        .andExpect(MockMvcResultMatchers.jsonPath("$.lastName").value(authPayload.lastName()))
-        .andExpect(MockMvcResultMatchers.jsonPath("$.guid").value(authPayload.guid()))
-        .andExpect(MockMvcResultMatchers.jsonPath("$.email").value(authPayload.email()))
+        .andExpect(
+            MockMvcResultMatchers.jsonPath("$.firstName").value(signUpResponsePayload.firstName()))
+        .andExpect(
+            MockMvcResultMatchers.jsonPath("$.lastName").value(signUpResponsePayload.lastName()))
+        .andExpect(MockMvcResultMatchers.jsonPath("$.guid").value(signUpResponsePayload.guid()))
+        .andExpect(MockMvcResultMatchers.jsonPath("$.email").value(signUpResponsePayload.email()))
         .andExpect(
             MockMvcResultMatchers.jsonPath("$.createdAt")
-                .value(equalTo(authPayload.createdAt().toString())));
+                .value(equalTo(signUpResponsePayload.createdAt().toString())));
   }
 
   @Test

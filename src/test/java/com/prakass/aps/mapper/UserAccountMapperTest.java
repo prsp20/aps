@@ -1,6 +1,6 @@
 package com.prakass.aps.mapper;
 
-import com.prakass.aps.dto.AuthPayload;
+import com.prakass.aps.dto.SignUpResponsePayload;
 import com.prakass.aps.dto.UserSignupPayload;
 import com.prakass.aps.entities.user_account.UserAccountEntity;
 import org.assertj.core.api.Assertions;
@@ -83,13 +83,17 @@ public class UserAccountMapperTest {
     userAccountEntity.setGuid("random-unique-guid");
     userAccountEntity.setCreatedAt(LocalDateTime.now());
 
-    AuthPayload authPayload = userAccountMapper.userAccountEntityToAuthPayload(userAccountEntity);
+    SignUpResponsePayload signUpResponsePayload =
+        userAccountMapper.userAccountEntityToSignUpResponsePayload(userAccountEntity);
 
-    Assertions.assertThat(authPayload).isNotNull();
-    Assertions.assertThat(authPayload.firstName()).isEqualTo(userAccountEntity.getFirstName());
-    Assertions.assertThat(authPayload.lastName()).isEqualTo(userAccountEntity.getLastName());
-    Assertions.assertThat(authPayload.email()).isEqualTo(userAccountEntity.getEmail());
-    Assertions.assertThat(authPayload.createdAt()).isEqualTo(userAccountEntity.getCreatedAt());
-    Assertions.assertThat(authPayload.guid()).isEqualTo(userAccountEntity.getGuid());
+    Assertions.assertThat(signUpResponsePayload).isNotNull();
+    Assertions.assertThat(signUpResponsePayload.firstName())
+        .isEqualTo(userAccountEntity.getFirstName());
+    Assertions.assertThat(signUpResponsePayload.lastName())
+        .isEqualTo(userAccountEntity.getLastName());
+    Assertions.assertThat(signUpResponsePayload.email()).isEqualTo(userAccountEntity.getEmail());
+    Assertions.assertThat(signUpResponsePayload.createdAt())
+        .isEqualTo(userAccountEntity.getCreatedAt());
+    Assertions.assertThat(signUpResponsePayload.guid()).isEqualTo(userAccountEntity.getGuid());
   }
 }

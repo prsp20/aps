@@ -1,6 +1,6 @@
 package com.prakass.aps.mapper;
 
-import com.prakass.aps.dto.AuthPayload;
+import com.prakass.aps.dto.SignUpResponsePayload;
 import com.prakass.aps.dto.UserSignupPayload;
 import com.prakass.aps.entities.user_account.UserAccountEntity;
 import org.mapstruct.*;
@@ -17,5 +17,6 @@ public interface UserAccountMapper {
   @Mapping(target = "createdAt", expression = "java(java.time.LocalDateTime.now())")
   UserAccountEntity userSignupPayloadToUserAccountEntity(UserSignupPayload userSignupPayload);
 
-  AuthPayload userAccountEntityToAuthPayload(UserAccountEntity userAccountEntity);
+  SignUpResponsePayload userAccountEntityToSignUpResponsePayload(
+      UserAccountEntity userAccountEntity);
 }

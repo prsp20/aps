@@ -5,5 +5,5 @@ import lombok.Builder;
 import java.time.LocalDateTime;
 
 @Builder
-public record AuthPayload(
+public record SignUpResponsePayload(
     String guid, String email, String firstName, String lastName, LocalDateTime createdAt) {}
