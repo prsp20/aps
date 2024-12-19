@@ -16,21 +16,22 @@ import lombok.Setter;
 @AllArgsConstructor
 public class UserMfaEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id;
 
-    private String guid;
+  private String guid;
 
-    @ManyToOne
-    @JoinColumn(name = "user_id")
-    private UserAccountEntity userAccount;
+  @ManyToOne
+  @JoinColumn(name = "user_id")
+  private UserAccountEntity userAccount;
 
-    @Enumerated(EnumType.STRING)
-    private MfaMethod mfaMethod;
-    private String mfaSecret;
-    private boolean mfaVerified;
-    private LocalDateTime mfaLastUsed;
-    private int mfaFailedAttempts;
-    private LocalDateTime mfaLockedUntil;
+  @Enumerated(EnumType.STRING)
+  private MfaMethod mfaMethod;
+
+  private String mfaSecret;
+  private boolean mfaVerified;
+  private LocalDateTime mfaLastUsed;
+  private int mfaFailedAttempts;
+  private LocalDateTime mfaLockedUntil;
 }

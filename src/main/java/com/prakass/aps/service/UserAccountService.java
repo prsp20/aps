@@ -7,12 +7,11 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class UserAccountService {
-    @Autowired
-    private UserAccountRepository userAccountRepository;
+  @Autowired private UserAccountRepository userAccountRepository;
 
-    public UserAccountEntity getUserAccountWithRoles(Long id) {
-        UserAccountEntity userAccount = userAccountRepository.findById(id).get();
-        userAccount.setRoles(userAccountRepository.findAllRolesByUserId(id));
-        return userAccount;
-    }
+  public UserAccountEntity getUserAccountWithRoles(Long id) {
+    UserAccountEntity userAccount = userAccountRepository.findById(id).get();
+    userAccount.setRoles(userAccountRepository.findAllRolesByUserId(id));
+    return userAccount;
+  }
 }

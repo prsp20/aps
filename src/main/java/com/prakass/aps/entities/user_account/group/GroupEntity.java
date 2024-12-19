@@ -16,14 +16,15 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class GroupEntity {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-    private String guid;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id;
 
-    private String name;
-    private String description;
+  private String guid;
 
-    @OneToMany(mappedBy = "groupEntity", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<GroupRoleEntity> groupRoleEntities = new ArrayList<>();
+  private String name;
+  private String description;
+
+  @OneToMany(mappedBy = "groupEntity", cascade = CascadeType.ALL, orphanRemoval = true)
+  private List<GroupRoleEntity> groupRoleEntities = new ArrayList<>();
 }

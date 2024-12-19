@@ -14,27 +14,27 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CustomerCompanyProfileEntity {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id;
 
-    private String guid;
-    private String companyName;
-    private String companyIdentifier;
-    private String companyContactEmail;
-    private String companyContactPhone;
-    private String companyContactFirstName;
-    private String companyContactSurname;
-    private String companyWebsite;
-    private String companyLogo;
-    private String industry;
-    private int numberOfEmployees;
+  private String guid;
+  private String companyName;
+  private String companyIdentifier;
+  private String companyContactEmail;
+  private String companyContactPhone;
+  private String companyContactFirstName;
+  private String companyContactSurname;
+  private String companyWebsite;
+  private String companyLogo;
+  private String industry;
+  private int numberOfEmployees;
 
-    @ManyToOne
-    @JoinColumn(name = "company_address_id")
-    private AddressEntity companyAddress;
+  @ManyToOne
+  @JoinColumn(name = "company_address_id")
+  private AddressEntity companyAddress;
 
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
-    private LocalDateTime deletedAt;
+  private LocalDateTime createdAt;
+  private LocalDateTime updatedAt;
+  private LocalDateTime deletedAt;
 }

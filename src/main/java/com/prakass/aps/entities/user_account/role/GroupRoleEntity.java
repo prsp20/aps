@@ -14,16 +14,16 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class GroupRoleEntity {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id;
 
-    private String guid;
+  private String guid;
 
-    @ManyToOne
-    @JoinColumn(name = "group_id")
-    private GroupEntity groupEntity;
+  @ManyToOne
+  @JoinColumn(name = "group_id")
+  private GroupEntity groupEntity;
 
-    @Enumerated(EnumType.STRING)
-    private UserRole role;
+  @Enumerated(EnumType.STRING)
+  private UserRole role;
 }

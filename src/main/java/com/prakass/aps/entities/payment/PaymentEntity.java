@@ -14,18 +14,18 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class PaymentEntity {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id;
 
-    private String guid;
+  private String guid;
 
-    @ManyToOne
-    @JoinColumn(name = "invoice_id")
-    private InvoiceEntity invoice;
+  @ManyToOne
+  @JoinColumn(name = "invoice_id")
+  private InvoiceEntity invoice;
 
-    private String paymentMethod;
-    private double amount;
-    private LocalDateTime paymentDate;
-    private String transactionId;
+  private String paymentMethod;
+  private double amount;
+  private LocalDateTime paymentDate;
+  private String transactionId;
 }
