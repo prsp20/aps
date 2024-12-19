@@ -1,6 +1,5 @@
 package com.prakass.aps.common.handler;
 
-import com.prakass.aps.common.dto.ObjectErrorToListOfFieldError;
 import com.prakass.aps.common.dto.ResponseDto;
 import com.prakass.aps.common.dto.ValidationError;
 import com.prakass.aps.common.exception.DuplicateEmailException;
@@ -26,7 +25,11 @@ public class GlobalExceptionHandler {
   @ExceptionHandler(MethodArgumentNotValidException.class)
   public ResponseEntity<ResponseDto> handleMethodArgumentNotValidException(
       MethodArgumentNotValidException e) {
-    List<ValidationError> fieldErrors = ObjectErrorToListOfFieldError.getFieldErrors(e);
+    List<ValidationError> fieldErrors =
+        e.getFieldErrors().stream()
+            .map(error -> new ValidationError(error.getField(), error.getDefaultMessage()))
+            .toList();
+
     return ResponseEntity.status(HttpStatus.BAD_REQUEST)
         .contentType(MediaType.APPLICATION_JSON)
         .body(ResponseDto.builder().status("failure").validationErrors(fieldErrors).build());
