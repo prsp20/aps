@@ -6,13 +6,14 @@ import com.prakass.aps.entities.user_account.group.UserGroupEntity;
 import com.prakass.aps.entities.user_account.role.GroupRoleEntity;
 import com.prakass.aps.entities.user_account.role.UserRole;
 import com.prakass.aps.entities.user_account.role.UserRoleEntity;
-import java.util.List;
-import java.util.Set;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+
+import java.util.List;
+import java.util.Set;
 
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.ANY)
@@ -42,11 +43,11 @@ public class UserAccountRepositoryTest {
   @Test
   public void findAllRolesByUserIdShouldReturnAllRolesCorrectly() {
     GroupRoleEntity groupRoleEntityAdmin = new GroupRoleEntity();
-    groupRoleEntityAdmin.setRole(UserRole.valueOf("ADMIN"));
+    groupRoleEntityAdmin.setRole(UserRole.ADMIN);
     groupRoleRepository.save(groupRoleEntityAdmin);
 
     GroupRoleEntity groupRoleEntityUser = new GroupRoleEntity();
-    groupRoleEntityUser.setRole(UserRole.valueOf("USER"));
+    groupRoleEntityUser.setRole(UserRole.USER);
     groupRoleRepository.save(groupRoleEntityUser);
 
     GroupEntity groupEntity = new GroupEntity();
@@ -60,7 +61,7 @@ public class UserAccountRepositoryTest {
 
     UserRoleEntity userRole = new UserRoleEntity();
     userRole.setUserAccountEntity(userAccount);
-    userRole.setRole(UserRole.valueOf("SUPERADMIN"));
+    userRole.setRole(UserRole.SUPERADMIN);
     userRoleRepository.save(userRole);
 
     UserGroupEntity userGroup = new UserGroupEntity();
@@ -87,7 +88,7 @@ public class UserAccountRepositoryTest {
   @Test
   public void findAllRolesByUserIdShouldReturnGroupRolesCorrectly() {
     GroupRoleEntity groupRoleEntityUser = new GroupRoleEntity();
-    groupRoleEntityUser.setRole(UserRole.valueOf("USER"));
+    groupRoleEntityUser.setRole(UserRole.USER);
     groupRoleRepository.save(groupRoleEntityUser);
 
     GroupEntity groupEntity = new GroupEntity();
@@ -117,7 +118,7 @@ public class UserAccountRepositoryTest {
 
     UserRoleEntity userRole = new UserRoleEntity();
     userRole.setUserAccountEntity(userAccount);
-    userRole.setRole(UserRole.valueOf("SUPERADMIN"));
+    userRole.setRole(UserRole.SUPERADMIN);
     userRoleRepository.save(userRole);
 
     Set<String> roles = userAccountRepository.findAllRolesByUserId(userAccount.getId());
