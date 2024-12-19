@@ -3,13 +3,12 @@ package com.prakass.aps.mapper;
 import com.prakass.aps.dto.SignUpResponsePayload;
 import com.prakass.aps.dto.UserSignupPayload;
 import com.prakass.aps.entities.user_account.UserAccountEntity;
+import java.time.LocalDateTime;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-
-import java.time.LocalDateTime;
 
 @SpringBootTest
 public class UserAccountMapperTest {
