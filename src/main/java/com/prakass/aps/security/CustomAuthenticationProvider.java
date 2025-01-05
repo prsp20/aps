@@ -14,8 +14,8 @@ import org.springframework.stereotype.Component;
 @Component
 @AllArgsConstructor
 public class CustomAuthenticationProvider implements AuthenticationProvider {
-    UserDetailsService userDetailsService;
-    PasswordEncoder passwordEncoder;
+    private final UserDetailsService userDetailsService;
+    private final PasswordEncoder passwordEncoder;
 
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
@@ -31,7 +31,7 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
             throw new BadCredentialsException("Login failed");
         }
 
-        return new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+        return new UsernamePasswordAuthenticationToken(userDetails, password, userDetails.getAuthorities());
     }
 
     @Override

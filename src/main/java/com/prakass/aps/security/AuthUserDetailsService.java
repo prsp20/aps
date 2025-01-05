@@ -1,4 +1,4 @@
-package com.prakass.aps.service;
+package com.prakass.aps.security;
 
 import com.prakass.aps.dao.UserAccountRepository;
 import com.prakass.aps.entities.user_account.UserAccountEntity;

@@ -11,6 +11,7 @@ import jakarta.annotation.PostConstruct;
 import java.time.LocalDateTime;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -20,6 +21,7 @@ public class DataInitializer {
   @Autowired private UserGroupRepository userGroupRepository;
   @Autowired private GroupRoleRepository groupRoleRepository;
   @Autowired private UserRoleRepository userRoleRepository;
+  @Autowired private PasswordEncoder passwordEncoder;
 
   @PostConstruct
   public void init() {
@@ -49,9 +51,9 @@ public class DataInitializer {
     userAccount.setGuid(UUID.randomUUID().toString());
     userAccount.setFirstName("John");
     userAccount.setLastName("Doe");
-    userAccount.setEmail("john.doe@example.com");
+    userAccount.setEmail("dev.dev@example.com");
     userAccount.setUsername("johndoe");
-    userAccount.setPasswordHash("hashedpassword");
+    userAccount.setPasswordHash(passwordEncoder.encode("dev1"));
     userAccount.setCountryCode("US");
     userAccount.setPhoneNumber("1234567890");
     userAccount.setEmailVerified(true);

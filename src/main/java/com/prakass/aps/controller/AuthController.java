@@ -8,6 +8,7 @@ import com.prakass.aps.security.JwtTokenUtil;
 import com.prakass.aps.service.AuthService;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -20,6 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @AllArgsConstructor
+@Slf4j
 @RequestMapping("/api/v1/auth")
 public class AuthController {
 
@@ -38,11 +40,11 @@ public class AuthController {
   public ResponseEntity<LoginResponse> login(
           @Valid @RequestBody UserLoginPayload userLoginPayload
   ) {
-    UserDetails userDetails = (UserDetails) authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
+    var usernamePasswordAuthenticationToken = (UsernamePasswordAuthenticationToken)authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
             userLoginPayload.email(), userLoginPayload.password()
     ));
-
-    String jwtToken = jwtTokenUtil.generateToken(userDetails);
+    var userDetails = (UserDetails)usernamePasswordAuthenticationToken.getPrincipal();
+    var jwtToken = jwtTokenUtil.generateToken(userDetails);
 
     return new ResponseEntity<>(new LoginResponse(jwtToken), HttpStatus.OK);
   }

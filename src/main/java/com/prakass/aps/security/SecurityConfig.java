@@ -7,26 +7,16 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.crypto.argon2.Argon2PasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
-@EnableWebSecurity
-public class SecurityConfig{
+public class SecurityConfig {
+
+  private final AuthenticationProvider authenticationProvider;
 
   @Autowired
-  private AuthenticationProvider authenticationProvider;
-
-  @Bean
-  public PasswordEncoder passwordEncoder() {
-    int saltLength = 16;
-    int hashLength = 32;
-    int parallelism = 1;
-    int memory = 65536;
-    int iterations = 1;
-    return new Argon2PasswordEncoder(saltLength, hashLength, parallelism, memory, iterations);
+  public SecurityConfig(AuthenticationProvider authenticationProvider) {
+    this.authenticationProvider = authenticationProvider;
   }
 
   @Bean
@@ -45,14 +35,4 @@ public class SecurityConfig{
             .authenticationProvider(authenticationProvider)
             .build();
   }
-
-//  @Bean
-//  public AuthenticationManager authManager(HttpSecurity http) throws Exception {
-////    AuthenticationManagerBuilder authenticationManagerBuilder =
-////            http.getSharedObject(AuthenticationManagerBuilder.class);
-////    authenticationManagerBuilder.authenticationProvider(customAuthenticationProvider);
-////    return authenticationManagerBuilder.build();
-//
-//    return super.A;
-//  }
 }

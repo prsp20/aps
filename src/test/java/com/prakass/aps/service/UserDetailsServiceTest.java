@@ -2,6 +2,7 @@ package com.prakass.aps.service;
 
 import com.prakass.aps.dao.UserAccountRepository;
 import com.prakass.aps.entities.user_account.UserAccountEntity;
+import com.prakass.aps.security.AuthUserDetailsService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
