@@ -1,23 +1,21 @@
 package com.prakass.aps.security;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
-public class SecurityConfig {
+@EnableWebSecurity
+@AllArgsConstructor
+public class SecurityConfig{
 
-  private final AuthenticationProvider authenticationProvider;
-
-  @Autowired
-  public SecurityConfig(AuthenticationProvider authenticationProvider) {
-    this.authenticationProvider = authenticationProvider;
-  }
+  private AuthenticationProvider authenticationProvider;
 
   @Bean
   public AuthenticationManager authenticationManager() throws Exception {
