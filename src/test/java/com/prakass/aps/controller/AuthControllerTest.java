@@ -16,10 +16,11 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
@@ -28,6 +29,7 @@ import java.time.LocalDateTime;
 
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -43,15 +45,15 @@ public class AuthControllerTest {
     private AuthService authService;
 
     @MockitoBean
-    private UserDetailsService userDetailsService;
-
-    @MockitoBean
     private AuthenticationManager authenticationManager;
 
-    private ObjectMapper objectMapper;
+    @MockitoBean
+    private AuthenticationProvider mockAuthenticationProvider;
 
     @MockitoBean
     private JwtTokenUtil jwtTokenUtil;
+
+    private ObjectMapper objectMapper;
 
   @BeforeEach
     void setUp() {
@@ -146,17 +148,17 @@ public class AuthControllerTest {
                 .email("john-doe@mail.com")
                 .password("password").build();
 
-        LoginResponse userLoginResponse = LoginResponse.builder()
-                .jwtToken("random-jwt-token").build();
-
         UserDetails user = User.builder()
                 .username("john-doe")
                 .password("encoded-password")
                 .authorities(new SimpleGrantedAuthority("USER")
         ).build();
 
-        when(userDetailsService.loadUserByUsername(userLoginPayload.email())) // Load by email
-                .thenReturn(user);
+        when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
+                .thenReturn(new UsernamePasswordAuthenticationToken(user,null, user.getAuthorities()));
+
+        LoginResponse userLoginResponse = LoginResponse.builder()
+                .jwtToken("random-jwt-token").build();
 
         when(jwtTokenUtil.generateToken(user)).thenReturn(userLoginResponse.jwtToken());
 
@@ -169,5 +171,25 @@ public class AuthControllerTest {
                 .andExpect(
                         MockMvcResultMatchers.jsonPath("$.jwtToken").value(userLoginResponse.jwtToken())
                 );
+    }
+
+    @Test
+    void loginShouldReturnValidationMessagesOnInvalidPayload() throws Exception {
+        UserLoginPayload userLoginPayload = UserLoginPayload.builder().build();
+        String[] expectedMessages = {
+                "Password is required",
+                "Email is required",
+        };
+
+        mockMvc
+                .perform(
+                        post("/api/v1/auth/signup")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(userLoginPayload)))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(
+                        MockMvcResultMatchers.jsonPath("$.validation_errors[*].message")
+                                .value(Matchers.hasItems(expectedMessages)));
     }
 }
