@@ -13,7 +13,7 @@ import org.springframework.security.web.SecurityFilterChain;
 @Configuration
 @EnableWebSecurity
 @AllArgsConstructor
-public class SecurityConfig{
+public class SecurityConfig {
 
   private AuthenticationProvider authenticationProvider;
 
@@ -23,14 +23,13 @@ public class SecurityConfig{
   }
 
   @Bean
-  public SecurityFilterChain securityFilterChain(HttpSecurity http, AuthenticationProvider authenticationProvider) throws Exception {
-    return http
-            .authorizeHttpRequests(
-              authorize -> authorize
-                      .requestMatchers("/api/v1/auth").permitAll()
-                      .anyRequest().permitAll())
-            .csrf(csrf -> csrf.disable())
-            .authenticationProvider(authenticationProvider)
-            .build();
+  public SecurityFilterChain securityFilterChain(
+      HttpSecurity http, AuthenticationProvider authenticationProvider) throws Exception {
+    return http.authorizeHttpRequests(
+            authorize ->
+                authorize.requestMatchers("/api/v1/auth").permitAll().anyRequest().permitAll())
+        .csrf(csrf -> csrf.disable())
+        .authenticationProvider(authenticationProvider)
+        .build();
   }
 }

@@ -14,28 +14,29 @@ import org.springframework.stereotype.Component;
 @Component
 @AllArgsConstructor
 public class CustomAuthenticationProvider implements AuthenticationProvider {
-    private final UserDetailsService userDetailsService;
-    private final PasswordEncoder passwordEncoder;
+  private final UserDetailsService userDetailsService;
+  private final PasswordEncoder passwordEncoder;
 
-    @Override
-    public Authentication authenticate(Authentication authentication) throws AuthenticationException {
-        String username = authentication.getName();
-        String password = authentication.getCredentials().toString();
+  @Override
+  public Authentication authenticate(Authentication authentication) throws AuthenticationException {
+    String username = authentication.getName();
+    String password = authentication.getCredentials().toString();
 
-        UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+    UserDetails userDetails = userDetailsService.loadUserByUsername(username);
 
-        if (userDetails == null) {
-            throw new BadCredentialsException("Login failed");
-        }
-        if (!passwordEncoder.matches(password, userDetails.getPassword())) {
-            throw new BadCredentialsException("Login failed");
-        }
-
-        return new UsernamePasswordAuthenticationToken(userDetails, password, userDetails.getAuthorities());
+    if (userDetails == null) {
+      throw new BadCredentialsException("Login failed");
+    }
+    if (!passwordEncoder.matches(password, userDetails.getPassword())) {
+      throw new BadCredentialsException("Login failed");
     }
 
-    @Override
-    public boolean supports(Class<?> authentication) {
-        return UsernamePasswordAuthenticationToken.class.isAssignableFrom(authentication);
-    }
+    return new UsernamePasswordAuthenticationToken(
+        userDetails, password, userDetails.getAuthorities());
+  }
+
+  @Override
+  public boolean supports(Class<?> authentication) {
+    return UsernamePasswordAuthenticationToken.class.isAssignableFrom(authentication);
+  }
 }

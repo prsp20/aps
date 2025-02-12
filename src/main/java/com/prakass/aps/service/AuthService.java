@@ -7,6 +7,7 @@ import com.prakass.aps.dto.UserSignupPayload;
 import com.prakass.aps.entities.user_account.UserAccountEntity;
 import com.prakass.aps.mapper.UserAccountMapper;
 import lombok.AllArgsConstructor;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,6 +18,7 @@ public class AuthService {
   private UserAccountRepository userAccountRepository;
   private PasswordEncoder passwordEncoder;
   private UserAccountMapper userAccountMapper;
+  private final UserSessionService userSessionService;
 
   @Transactional
   public SignUpResponsePayload signUpUser(UserSignupPayload userSignupPayload) {
@@ -29,5 +31,13 @@ public class AuthService {
     userAccountRepository.save(userAccount);
 
     return userAccountMapper.userAccountEntityToSignUpResponsePayload(userAccount);
+  }
+
+  @Transactional
+  public String loginUserAndCreateSessionToken(UserDetails userDetails) {
+    UserAccountEntity userAccount =
+        userAccountRepository.findFirstByEmail(userDetails.getUsername());
+
+    return userSessionService.createAndSaveUserSession(userDetails, userAccount);
   }
 }

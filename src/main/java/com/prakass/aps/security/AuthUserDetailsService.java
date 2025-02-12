@@ -24,12 +24,16 @@ public class AuthUserDetailsService implements UserDetailsService {
     if (userAccountEntity == null) {
       return null;
     }
-    userAccountEntity.setRoles(userAccountRepository.findAllRolesByUserId(userAccountEntity.getId()));
+    userAccountEntity.setRoles(
+        userAccountRepository.findAllRolesByUserId(userAccountEntity.getId()));
 
     return User.builder()
         .username(userAccountEntity.getUsername())
         .password(userAccountEntity.getPasswordHash())
-        .authorities(userAccountEntity.getRoles().stream().map(SimpleGrantedAuthority::new).collect(Collectors.toList()))
+        .authorities(
+            userAccountEntity.getRoles().stream()
+                .map(SimpleGrantedAuthority::new)
+                .collect(Collectors.toList()))
         .build();
   }
 }

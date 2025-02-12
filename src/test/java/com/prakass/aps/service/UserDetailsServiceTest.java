@@ -1,20 +1,19 @@
 package com.prakass.aps.service;
 
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.when;
+
 import com.prakass.aps.dao.UserAccountRepository;
 import com.prakass.aps.entities.user_account.UserAccountEntity;
 import com.prakass.aps.security.AuthUserDetailsService;
+import java.util.HashSet;
+import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
-
-import java.util.HashSet;
-import java.util.Set;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.when;
 
 @SpringBootTest
 public class UserDetailsServiceTest {
@@ -58,8 +57,9 @@ public class UserDetailsServiceTest {
 
     UserDetails userDetails = userDetailsService.loadUserByUsername(userAccount.getEmail());
 
-    assertTrue(userDetails.getAuthorities().stream().anyMatch(
-            grantedAuthority -> grantedAuthority.getAuthority().equals("USER")));
+    assertTrue(
+        userDetails.getAuthorities().stream()
+            .anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals("USER")));
   }
 
   @Test

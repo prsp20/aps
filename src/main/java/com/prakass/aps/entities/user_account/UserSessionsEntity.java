@@ -1,11 +1,9 @@
 package com.prakass.aps.entities.user_account;
 
 import jakarta.persistence.*;
-import java.time.LocalDateTime;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
+
+import java.time.Instant;
 
 @Entity
 @Table(name = "user_session")
@@ -13,19 +11,19 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class UserSessionsEntity {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
-  private String guid;
+  private String sessionGuid;
 
   @ManyToOne
   @JoinColumn(name = "user_id")
   private UserAccountEntity userAccount;
 
-  private String jwtToken;
-  private LocalDateTime createdAt;
-  private LocalDateTime expiresAt;
+  private Instant createdAt;
+  private Instant expiresAt;
   private boolean revoked;
 }
