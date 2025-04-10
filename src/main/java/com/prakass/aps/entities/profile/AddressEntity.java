@@ -14,21 +14,21 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class AddressEntity {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id;
 
-    private String guid;
-    private String streetAddress;
-    private String city;
-    private String state;
-    private String postalCode;
-    private String country;
-    private String description;
+  private String guid;
+  private String streetAddress;
+  private String city;
+  private String state;
+  private String postalCode;
+  private String country;
+  private String description;
 
-    private Double latitude;
-    private Double longitude;
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
-    private LocalDateTime deletedAt;
+  private Double latitude;
+  private Double longitude;
+  private LocalDateTime createdAt;
+  private LocalDateTime updatedAt;
+  private LocalDateTime deletedAt;
 }

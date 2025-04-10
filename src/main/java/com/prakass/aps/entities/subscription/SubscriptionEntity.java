@@ -16,25 +16,25 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class SubscriptionEntity {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id;
 
-    private String guid;
+  private String guid;
 
-    private LocalDateTime startDate;
-    private LocalDateTime endDate;
-    private boolean active;
+  private LocalDateTime startDate;
+  private LocalDateTime endDate;
+  private boolean active;
 
-    @ManyToOne
-    @JoinColumn(name = "subscription_plan_id")
-    private ProductEntity product;
+  @ManyToOne
+  @JoinColumn(name = "subscription_plan_id")
+  private ProductEntity product;
 
-    @ManyToOne
-    @JoinColumn(name = "user_account_id", nullable = true)
-    private UserAccountEntity userAccount;
+  @ManyToOne
+  @JoinColumn(name = "user_account_id", nullable = true)
+  private UserAccountEntity userAccount;
 
-    @ManyToOne
-    @JoinColumn(name = "customer_company_id", nullable = true)
-    private CustomerCompanyProfileEntity customerCompany;
+  @ManyToOne
+  @JoinColumn(name = "customer_company_id", nullable = true)
+  private CustomerCompanyProfileEntity customerCompany;
 }
