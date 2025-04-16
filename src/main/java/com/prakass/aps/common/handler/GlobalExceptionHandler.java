@@ -2,7 +2,9 @@ package com.prakass.aps.common.handler;
 
 import com.prakass.aps.common.dto.ResponseDto;
 import com.prakass.aps.common.dto.ValidationError;
+import com.prakass.aps.common.exception.AuthException;
 import com.prakass.aps.common.exception.DuplicateEmailException;
+import com.prakass.aps.common.exception.ResourceNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -55,4 +57,26 @@ public class GlobalExceptionHandler {
                 .message("An unexpected error occurred")
                 .build());
   }
+
+  @ExceptionHandler(ResourceNotFoundException.class)
+  public ResponseEntity<ResponseDto> handleResourceNotFoundException(ResourceNotFoundException e) {
+    return ResponseEntity.status(e.getHttpStatus())
+            .contentType(MediaType.APPLICATION_JSON)
+            .body(ResponseDto.builder()
+                    .status("No content")
+                    .message(e.getMessage())
+                    .build());
+  }
+
+  @ExceptionHandler(AuthException.class)
+  public ResponseEntity<ResponseDto> handleAuthException(AuthException e) {
+    return ResponseEntity.status(e.getHttpStatus())
+            .contentType(MediaType.APPLICATION_JSON)
+            .body(ResponseDto.builder()
+                    .status("Invalid Data")
+                    .message(e.getMessage())
+                    .build());
+  }
+
+
 }
