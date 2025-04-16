@@ -5,6 +5,7 @@ import com.prakass.aps.common.dto.ValidationError;
 import com.prakass.aps.common.exception.AuthException;
 import com.prakass.aps.common.exception.DuplicateEmailException;
 import com.prakass.aps.common.exception.ResourceNotFoundException;
+import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -13,8 +14,6 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-
-import java.util.List;
 
 @ControllerAdvice
 @Slf4j
@@ -39,11 +38,10 @@ public class GlobalExceptionHandler {
   }
 
   @ExceptionHandler(BadCredentialsException.class)
-  public ResponseEntity<ResponseDto> handleBadCredentialsException(
-          BadCredentialsException e){
+  public ResponseEntity<ResponseDto> handleBadCredentialsException(BadCredentialsException e) {
     return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-            .contentType(MediaType.APPLICATION_JSON)
-            .body(ResponseDto.builder().status("failure").message(e.getMessage()).build());
+        .contentType(MediaType.APPLICATION_JSON)
+        .body(ResponseDto.builder().status("failure").message(e.getMessage()).build());
   }
 
   @ExceptionHandler(Exception.class)
@@ -61,22 +59,14 @@ public class GlobalExceptionHandler {
   @ExceptionHandler(ResourceNotFoundException.class)
   public ResponseEntity<ResponseDto> handleResourceNotFoundException(ResourceNotFoundException e) {
     return ResponseEntity.status(e.getHttpStatus())
-            .contentType(MediaType.APPLICATION_JSON)
-            .body(ResponseDto.builder()
-                    .status("No content")
-                    .message(e.getMessage())
-                    .build());
+        .contentType(MediaType.APPLICATION_JSON)
+        .body(ResponseDto.builder().status("No content").message(e.getMessage()).build());
   }
 
   @ExceptionHandler(AuthException.class)
   public ResponseEntity<ResponseDto> handleAuthException(AuthException e) {
     return ResponseEntity.status(e.getHttpStatus())
-            .contentType(MediaType.APPLICATION_JSON)
-            .body(ResponseDto.builder()
-                    .status("Invalid Data")
-                    .message(e.getMessage())
-                    .build());
+        .contentType(MediaType.APPLICATION_JSON)
+        .body(ResponseDto.builder().status("Invalid Data").message(e.getMessage()).build());
   }
-
-
 }

@@ -5,16 +5,16 @@ import com.prakass.aps.entities.user_account.UserAccountEntity;
 import com.prakass.aps.entities.user_account.UserSessionsEntity;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.stereotype.Component;
-
 import java.security.Key;
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.stereotype.Component;
 
 @Component
 public class SessionJwtTokenUtil {
@@ -29,16 +29,15 @@ public class SessionJwtTokenUtil {
       UserDetails userDetails, UserAccountEntity userAccountEntity) {
     String sessionGuid = UUID.randomUUID().toString();
     Instant createdAt = Instant.now();
-    Instant expiresAt = Instant.now().plusMillis(jwtExpirationInMs);
+    Instant expiresAt = Instant.from(LocalDateTime.now().plusSeconds(jwtExpirationInMs));
 
     String jwtToken = generateToken(userDetails, sessionGuid, createdAt, expiresAt);
 
     UserSessionsEntity userSessionsEntity =
         UserSessionsEntity.builder()
-            .sessionGuid(sessionGuid)
-            .userAccount(userAccountEntity)
-            .createdAt(createdAt)
-            .expiresAt(expiresAt)
+//            .sessionGuid(sessionGuid)
+//            .userAccount(userAccountEntity)
+//            .expiresAt(LocalDateTime.from(expiresAt))
             .revoked(false)
             .build();
     return SessionJwtToken.builder()
