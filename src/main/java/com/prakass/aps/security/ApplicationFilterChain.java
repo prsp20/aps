@@ -52,7 +52,7 @@ public class ApplicationFilterChain extends OncePerRequestFilter {
                 }
                 final String token = authorization.substring(7);
 
-                AccessToken accessToken = accessTokenRepository.findAccessTokenByAccessToken(token)
+                AccessToken accessToken = accessTokenRepository.findAccessTokenByToken(token)
                         .orElseThrow(() -> new ResourceNotFoundException("Invalid access token", HttpStatus.BAD_REQUEST));
                 if (accessToken.isExpired()) {
                     throw new AuthException("Token is expired", HttpStatus.UNAUTHORIZED);

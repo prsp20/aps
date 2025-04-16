@@ -28,11 +28,11 @@ public class TokenService {
     public String createAccessToken(String token, UserAccountEntity userAccountEntity) {
 //        AccessToken accessToken = tokenMapper.accessTokenToEntity(token, userAccountEntity);
         AccessToken accessToken = new AccessToken();
-        accessToken.setAccessToken(token);
+        accessToken.setToken(token);
         accessToken.setUserAccountEntity(userAccountEntity);
         accessToken.setExpired(false);
         AccessToken accessTokenDB = accessTokenRepository.save(accessToken);
-        return accessTokenDB.getAccessToken();
+        return accessTokenDB.getToken();
     }
 
     @Transactional
@@ -41,9 +41,10 @@ public class TokenService {
 //        RefreshToken refreshToken = refreshTokenRepository.save(tokenMapper.refreshTokenEntity(token, userAccountEntity));
 
         RefreshToken refreshToken = new RefreshToken();
-        refreshToken.setRefreshToken(token);
+        refreshToken.setToken(token);
         refreshToken.setUserAccountEntity(userAccountEntity);
         refreshToken.setExpired(false);
-        return refreshToken.getRefreshToken();
+        RefreshToken refreshTokenDB = refreshTokenRepository.save(refreshToken);
+        return refreshTokenDB.getToken();
     }
 }

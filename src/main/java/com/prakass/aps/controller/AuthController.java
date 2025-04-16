@@ -1,9 +1,6 @@
 package com.prakass.aps.controller;
 
-import com.prakass.aps.dto.LoginResponse;
-import com.prakass.aps.dto.SignUpResponsePayload;
-import com.prakass.aps.dto.UserLoginPayload;
-import com.prakass.aps.dto.UserSignupPayload;
+import com.prakass.aps.dto.*;
 import com.prakass.aps.entities.user_account.UserAccountEntity;
 import com.prakass.aps.service.AuthService;
 import com.prakass.aps.service.TokenService;
@@ -54,8 +51,9 @@ public class AuthController {
   }
 
   @PostMapping("/refresh-token")
-  public ResponseEntity<LoginResponse> refreshToken(@RequestParam("accessToken") String accessToken) {
-    LoginResponse loginResponse = userAccountService.generateRefreshToken(accessToken);
+  public ResponseEntity<LoginResponse> refreshToken(@RequestBody RefreshTokenPayload refreshToken) {
+    LoginResponse loginResponse = userAccountService.generateRefreshToken(refreshToken);
     return new ResponseEntity<>(loginResponse, HttpStatus.OK);
   }
+
 }

@@ -14,12 +14,12 @@ import org.mapstruct.*;
 )
 public interface TokenMapper {
 
-    @Mapping(target = "accessToken", source = "token")
+    @Mapping(target = "token", source = "token")
     @Mapping(target = "expired", constant = "false")
     @Mapping(target = "userAccountEntity", source = "userAccountEntity")
     AccessToken accessTokenToEntity(String token, UserAccountEntity userAccountEntity);
 
-    @Mapping(target = "refreshToken", source = "token")
+    @Mapping(target = "token", source = "token")
     @Mapping(target = "expired", constant = "false")
     @Mapping(target = "userAccountEntity", source = "userAccountEntity")
     RefreshToken refreshTokenEntity(String token, UserAccountEntity userAccountEntity);

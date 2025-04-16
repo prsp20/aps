@@ -3,13 +3,15 @@ package com.prakass.aps.common.base;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@Component
 public class UserProvider {
 
-    private String getUserName() {
+    public String getUserName() {
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         String userName = null;
         if(principal instanceof UserDetails) {
@@ -18,7 +20,7 @@ public class UserProvider {
         return userName;
     }
 
-    private List<String> getUserRole(){
+    public List<String> getUserRole(){
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         List<String> roles = new ArrayList<>();
         if(principal instanceof UserDetails) {

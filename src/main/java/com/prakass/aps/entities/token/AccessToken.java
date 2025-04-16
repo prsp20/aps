@@ -16,8 +16,8 @@ public class AccessToken extends AbstractEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "access_token", columnDefinition = "text", length = 1000, nullable = false)
-    private String accessToken;
+    @Column(name = "token", columnDefinition = "text", length = 1000, nullable = false)
+    private String token;
 
     @Column(name = "expired" )
     private boolean expired;
