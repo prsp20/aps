@@ -6,8 +6,12 @@ import jakarta.persistence.MappedSuperclass;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+
 import lombok.*;
 import lombok.experimental.SuperBuilder;
+import org.mapstruct.ap.shaded.freemarker.template.utility.DateUtil;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 @Getter
@@ -20,21 +24,20 @@ public class AbstractEntity {
 
   @Setter(AccessLevel.PROTECTED)
   @JsonIgnore
-  private LocalDateTime createdAt;
+  private ZonedDateTime createdAt;
 
   @Setter(AccessLevel.PROTECTED)
   @JsonIgnore
-  private LocalDateTime updatedAt;
+  private ZonedDateTime updatedAt;
 
   @PrePersist
   public void onPersist() {
-    LocalDateTime now = LocalDateTime.now();
-    this.createdAt = now;
-    this.updatedAt = now;
+    this.createdAt = ZonedDateTime.now(ZoneId.of("UTC")) ;
+    this.updatedAt = ZonedDateTime.now(ZoneId.of("UTC")) ;
   }
 
   @PreUpdate
   public void onUpdate() {
-    this.updatedAt = LocalDateTime.now();
+    this.updatedAt = ZonedDateTime.now(ZoneId.of("UTC")) ;
   }
 }

@@ -23,5 +23,5 @@ public class UserSessionsEntity extends AbstractEntity {
 
   private boolean revoked;
 
-  private String userName;
+  private String email;
 }

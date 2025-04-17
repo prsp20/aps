@@ -1,107 +1,89 @@
 package com.prakass.aps.utils;
 
 import com.prakass.aps.common.exception.AuthException;
-import com.prakass.aps.dto.PasswordType;
 import com.prakass.aps.dto.UserPasswordDetails;
 import com.prakass.aps.dto.UserTokenDetails;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
-import java.util.*;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
+
+import static com.prakass.aps.service.JwtTokenService.*;
 
 
 @Component
+@RequiredArgsConstructor
 public class JwtTokenUtils {
 
-  private final String secretKey;
+    @Value("${jwt.secret}")
+    private String secretKey;
+    private final DateUtils dateUtils;
 
-  public JwtTokenUtils(@Value("${jwt.secret}") String secretKey) {
-    this.secretKey = secretKey;
-  }
 
-  private static final String ROLES = "roles";
-  private static final String ACCESS_TOKEN_GUID = "accessTokenGuid";
-  private static final String REFRESH_TOKEN_GUID = "refreshTokenGuid";
-
-  public String generateToken(String userName, Set<String> roles, String accessGuid, String refreshGuid,  long expirationTimeInSecond) {
-    try {
-      Map<String, Object> claims = new HashMap<>();
-      claims.put(ROLES, roles);
-      claims.put(ACCESS_TOKEN_GUID, accessGuid);
-      claims.put(REFRESH_TOKEN_GUID, refreshGuid);
-      return Jwts.builder()
-              .claims(claims)
-              .subject(userName)
-              .issuedAt(new Date(System.currentTimeMillis()))
-              .expiration(new Date(System.currentTimeMillis() + (expirationTimeInSecond * 1000L)))
-              .signWith(getSignInKey())
-              .compact();
-    }catch (Exception e) {
-      throw new AuthException(e.getMessage(), HttpStatus.BAD_REQUEST);
+    public String generateToken(String userName, Map<String, Object> claims, long expirationTimeInSecond) {
+        try {
+            return Jwts.builder()
+                    .claims(claims)
+                    .subject(userName)
+                    .issuedAt(dateUtils.convertZonedDateTimeToDate(dateUtils.getZonedDateTime()))
+                    .expiration(dateUtils.convertZonedDateTimeToDate(dateUtils.getZonedDateTime().plusSeconds(expirationTimeInSecond)))
+                    .signWith(getSignInKey())
+                    .compact();
+        } catch (Exception e) {
+            throw new AuthException(e.getMessage());
+        }
     }
-  }
 
-  public UserTokenDetails verifyToken(String token) {
-    try {
-      Claims claims = Jwts.parser()
-              .verifyWith(getSignInKey()) // use the same secret key as in generateToken
-              .build()
-              .parseSignedClaims(token)
-              .getPayload();
-      Set<String> roles = new HashSet<>();
-      String userName = claims.get("sub", String.class);
-      String accessTokenGuid  = claims.get(ACCESS_TOKEN_GUID, String.class);
-      String refreshTokenGuid = claims.get(REFRESH_TOKEN_GUID, String.class);
-      Object rolesClaims = claims.get(ROLES);
-      if(rolesClaims instanceof Set<?>) {
-        roles = ((Set<?>) rolesClaims).stream().map(String::valueOf).collect(Collectors.toSet());
-      } else {
-        roles = new HashSet<>();
-      }
-      return new UserTokenDetails(userName, roles, accessTokenGuid, refreshTokenGuid);
-    } catch (Exception e) {
-      throw  new AuthException(e.getMessage(), HttpStatus.BAD_REQUEST);
+    public UserTokenDetails verifyToken(String token) {
+        Claims claims = getClaimsFromToken(token);
+
+        Set<String> roles = new HashSet<>();
+
+        String userName = claims.get("sub", String.class);
+        String accessTokenGuid = claims.get(ACCESS_TOKEN_GUID, String.class);
+        String refreshTokenGuid = claims.get(REFRESH_TOKEN_GUID, String.class);
+
+        Object rolesClaims = claims.get(ROLES);
+        if (rolesClaims instanceof Set<?>) {
+            roles = ((Set<?>) rolesClaims).stream().map(String::valueOf).collect(Collectors.toSet());
+        } else {
+            roles = new HashSet<>();
+        }
+
+        return new UserTokenDetails(userName, roles, accessTokenGuid, refreshTokenGuid);
     }
-  }
 
-  private SecretKey getSignInKey() {
-    byte[] keyBytes = this.secretKey.getBytes();
-    return Keys.hmacShaKeyFor(keyBytes);
-  }
-
-  public String generatePasswordResetToken(String email, long expirationTimeInSecond, PasswordType passwordType) {
-    try {
-      return Jwts.builder()
-              .claim("passwordType", passwordType.getType())
-              .subject(email)
-              .issuedAt(new Date(System.currentTimeMillis()))
-              .expiration(new Date(System.currentTimeMillis() + (expirationTimeInSecond * 1000L)))
-              .signWith(getSignInKey())
-              .compact();
-    }catch (Exception e) {
-      throw new AuthException(e.getMessage(), HttpStatus.BAD_REQUEST);
+    private SecretKey getSignInKey() {
+        byte[] keyBytes = this.secretKey.getBytes();
+        return Keys.hmacShaKeyFor(keyBytes);
     }
-  }
 
-  public UserPasswordDetails verifyResetPasswordToken(String token) {
-    try{
-      Claims claims = Jwts.parser()
-              .verifyWith(getSignInKey()) // use the same secret key as in generateToken
-              .build()
-              .parseSignedClaims(token)
-              .getPayload();
-      final String name = claims.get("sub", String.class);
-      final String passwordType = claims.get("passwordType", String.class);
-      return new UserPasswordDetails(name, passwordType);
-
-    }catch (Exception e) {
-      throw new AuthException(e.getMessage(), HttpStatus.BAD_REQUEST);
+    private Claims getClaimsFromToken(String token) {
+        try {
+            return Jwts.parser()
+                    .verifyWith(getSignInKey())
+                    .build()
+                    .parseSignedClaims(token)
+                    .getPayload();
+        } catch (Exception e) {
+            throw new AuthException(e.getMessage());
+        }
     }
-  }
+
+    public UserPasswordDetails verifyResetPasswordToken(String token) {
+        Claims claims = getClaimsFromToken(token);
+        final String name = claims.get("sub", String.class);
+        final String passwordType = claims.get("passwordType", String.class);
+        return new UserPasswordDetails(name, passwordType);
+    }
 }

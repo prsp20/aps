@@ -8,7 +8,7 @@ import com.prakass.aps.dto.*;
 import com.prakass.aps.entities.user_account.UserAccountEntity;
 import com.prakass.aps.entities.user_account.UserSessionsEntity;
 import jakarta.transaction.Transactional;
-import org.springframework.http.HttpStatus;
+import lombok.AllArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -19,23 +19,13 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
+@AllArgsConstructor
 public class UserAccountService {
 
     private final UserAccountRepository userAccountRepository;
     private final JwtTokenService jwtTokenService;
     private final UserSessionRepository userSessionRepository;
     private final PasswordEncoder passwordEncoder;
-
-    public UserAccountService(
-            UserAccountRepository userAccountRepository,
-            JwtTokenService jwtTokenService,
-            UserSessionRepository userSessionRepository,
-            PasswordEncoder passwordEncoder) {
-        this.userAccountRepository = userAccountRepository;
-        this.jwtTokenService = jwtTokenService;
-        this.userSessionRepository = userSessionRepository;
-        this.passwordEncoder = passwordEncoder;
-    }
 
     public UserAccountEntity getUserAccountWithRoles(Long id) {
         UserAccountEntity userAccount = userAccountRepository.findById(id).get();
@@ -47,60 +37,71 @@ public class UserAccountService {
     public LoginResponse getUserLoginResponse(UserDetails userDetails) {
         Set<String> roles =
                 userDetails.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.toSet());
+
         UserSessionsEntity userSessionsEntity =
                 UserSessionsEntity.builder()
                         .accessTokenGuid(UUID.randomUUID().toString())
                         .refreshTokenGuid(UUID.randomUUID().toString())
                         .revoked(false)
-                        .userName(userDetails.getUsername())
+                        .email(userDetails.getUsername())
                         .build();
-        UserSessionsEntity userSessionDB = userSessionRepository.save(userSessionsEntity);
+
+        UserSessionsEntity userSessionFromDB = userSessionRepository.save(userSessionsEntity);
+
         String accessToken =
-                jwtTokenService.generateAccessToken(userDetails.getUsername(), roles, userSessionDB.getAccessTokenGuid(), userSessionDB.getRefreshTokenGuid());
+                jwtTokenService.generateAccessToken(userDetails.getUsername(), roles, userSessionFromDB.getAccessTokenGuid(), userSessionFromDB.getRefreshTokenGuid());
+
         String refreshToken =
-                jwtTokenService.generateRefreshToken(userDetails.getUsername(), roles, userSessionDB.getAccessTokenGuid(), userSessionDB.getRefreshTokenGuid());
+                jwtTokenService.generateRefreshToken(userDetails.getUsername(), roles, userSessionFromDB.getAccessTokenGuid(), userSessionFromDB.getRefreshTokenGuid());
+
         return new LoginResponse(accessToken, refreshToken);
     }
 
     @Transactional
     public LoginResponse generateRefreshToken(RefreshTokenPayload payload) {
         UserTokenDetails userTokenDetails = jwtTokenService.userTokenDetails(payload.refreshToken());
+
         UserSessionsEntity userSessionsEntity = userSessionRepository.findUserSessionsEntitiesByAccessTokenGuidAndRefreshTokenGuid(userTokenDetails.accessTokenGuid(), userTokenDetails.refreshTokenGuid())
-                .orElseThrow( () -> new ResourceNotFoundException("Could not find user session for refresh token", HttpStatus.BAD_REQUEST)) ;
+                .orElseThrow( () -> new AuthException("Could not find user session for refresh token.")) ;
+
         String accessToken = jwtTokenService.generateAccessToken(userTokenDetails.userName(), userTokenDetails.roles(), userSessionsEntity.getAccessTokenGuid(), userSessionsEntity.getRefreshTokenGuid());
+
         String refreshToken = jwtTokenService.generateAccessToken(userTokenDetails.userName(), userTokenDetails.roles(), userSessionsEntity.getAccessTokenGuid(), userSessionsEntity.getRefreshTokenGuid());
+
         userSessionsEntity.setAccessTokenGuid(userTokenDetails.accessTokenGuid());
         userSessionsEntity.setRefreshTokenGuid(userTokenDetails.refreshTokenGuid());
+
         userSessionRepository.save(userSessionsEntity);
+
         return new LoginResponse(accessToken, refreshToken);
     }
 
-    public String requestPasswordReset(String email) {
-        UserAccountEntity userAccount = userAccountRepository.findFirstByEmail(email);
-        if (userAccount == null) {
-            throw new ResourceNotFoundException("Could not find user account", HttpStatus.BAD_REQUEST);
-        }
-        String passwordResetToken = jwtTokenService.generatePasswordResetToken(email);
+    public String requestPasswordReset(SendEmailPayload payload) {
+        UserAccountEntity userAccount = userAccountRepository.findFirstByEmail(payload.email());
+
+        String passwordResetToken = jwtTokenService.generatePasswordResetToken(payload.email());
 
         //todo send email
         return passwordResetToken;
     }
 
     @Transactional
-    public void resetPassword(PasswordRequestPayload passwordRequestPayload) {
-        if(!passwordRequestPayload.newPassword().contains(passwordRequestPayload.confirmPassword())){
-            throw new AuthException("Password does not contain confirm password", HttpStatus.BAD_REQUEST);
+    public void resetPassword(PasswordRequestPayload payload) {
+        if(!payload.newPassword().equals(payload.confirmPassword())){
+            throw new AuthException("Password does not contain confirm password.");
         }
-        UserPasswordDetails userPasswordDetails = jwtTokenService.verifyResetPasswordToken(passwordRequestPayload.token());
-        if(!userPasswordDetails.passwordType().contains(PasswordType.RESET_PASSWORD.getType())){
-            throw new AuthException("Token does not contain reset password", HttpStatus.BAD_REQUEST);
+
+        UserPasswordDetails userPasswordDetails = jwtTokenService.verifyResetPasswordToken(payload.token());
+        if(!TokenType.RESET_PASSWORD.getType().equals(userPasswordDetails.passwordType())){
+            throw new AuthException("Invalid token.");
         }
+
         UserAccountEntity userAccount = userAccountRepository.findFirstByEmail(userPasswordDetails.username());
         if (userAccount == null) {
-            throw new ResourceNotFoundException("Could not find user account", HttpStatus.BAD_REQUEST);
+            throw new ResourceNotFoundException("Could not find user account.");
         }
-        userAccount.setPasswordHash(passwordEncoder.encode(passwordRequestPayload.newPassword()));
-        userAccountRepository.save(userAccount);
 
+        userAccount.setPasswordHash(passwordEncoder.encode(payload.newPassword()));
+        userAccountRepository.save(userAccount);
     }
 }
