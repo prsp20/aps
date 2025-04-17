@@ -54,7 +54,7 @@ public class JwtTokenUtils {
               .getPayload();
 
       Set<String> roles = new HashSet<>();
-      String userName = claims.get("subject", String.class);
+      String userName = claims.get("sub", String.class);
       String accessTokenGuid  = claims.get(ACCESS_TOKEN_GUID, String.class);
       String refreshTokenGuid = claims.get(REFRESH_TOKEN_GUID, String.class);
       Object rolesClaims = claims.get(ROLES);
