@@ -50,7 +50,7 @@ public class AuthController {
   }
 
   @PostMapping("/request-password-reset")
-  public ResponseEntity<String> requestPasswordReset(@RequestBody @Valid SendEmailPayload payload) {
+  public ResponseEntity<String> requestPasswordReset(@RequestBody @Valid RequestPasswordResetPayload payload) {
     return new ResponseEntity<>(userAccountService.requestPasswordReset(payload), HttpStatus.OK);
   }
 

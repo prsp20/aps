@@ -3,6 +3,7 @@ package com.prakass.aps.common.handler;
 import com.prakass.aps.common.dto.ResponseDto;
 import com.prakass.aps.common.dto.ValidationError;
 import com.prakass.aps.common.exception.AuthException;
+import com.prakass.aps.common.exception.BadRequestException;
 import com.prakass.aps.common.exception.DuplicateEmailException;
 import com.prakass.aps.common.exception.ResourceNotFoundException;
 import java.util.List;
@@ -58,7 +59,7 @@ public class GlobalExceptionHandler {
 
   @ExceptionHandler(ResourceNotFoundException.class)
   public ResponseEntity<ResponseDto> handleResourceNotFoundException(ResourceNotFoundException e) {
-    return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+    return ResponseEntity.status(HttpStatus.NOT_FOUND)
         .contentType(MediaType.APPLICATION_JSON)
         .body(ResponseDto.builder().status("No content").message(e.getMessage()).build());
   }
@@ -68,5 +69,12 @@ public class GlobalExceptionHandler {
     return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
         .contentType(MediaType.APPLICATION_JSON)
         .body(ResponseDto.builder().status("Unauthorized").message(e.getMessage()).build());
+  }
+
+  @ExceptionHandler(BadRequestException.class)
+  public ResponseEntity<ResponseDto> handleBadRequestException(BadRequestException e) {
+    return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+            .contentType(MediaType.APPLICATION_JSON)
+            .body(ResponseDto.builder().status("Bad request").message(e.getMessage()).build());
   }
 }

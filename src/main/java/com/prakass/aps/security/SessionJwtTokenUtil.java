@@ -3,18 +3,19 @@ package com.prakass.aps.security;
 import com.prakass.aps.dto.SessionJwtToken;
 import com.prakass.aps.entities.user_account.UserAccountEntity;
 import com.prakass.aps.entities.user_account.UserSessionsEntity;
+import com.prakass.aps.utils.DateUtils;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.stereotype.Component;
+
 import java.security.Key;
 import java.time.Instant;
-import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.stereotype.Component;
 
 @Component
 public class SessionJwtTokenUtil {
@@ -28,8 +29,8 @@ public class SessionJwtTokenUtil {
   public SessionJwtToken createSessionEntity(
       UserDetails userDetails, UserAccountEntity userAccountEntity) {
     String sessionGuid = UUID.randomUUID().toString();
-    Instant createdAt = Instant.now();
-    Instant expiresAt = Instant.from(LocalDateTime.now().plusSeconds(jwtExpirationInMs));
+    Instant createdAt = DateUtils.getZonedDateTime().toInstant();
+    Instant expiresAt = DateUtils.getZonedDateTime().toInstant().plusMillis(jwtExpirationInMs);
 
     String jwtToken = generateToken(userDetails, sessionGuid, createdAt, expiresAt);
 

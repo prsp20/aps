@@ -1,6 +1,7 @@
 package com.prakass.aps.service;
 
 import com.prakass.aps.common.exception.AuthException;
+import com.prakass.aps.common.exception.BadRequestException;
 import com.prakass.aps.common.exception.ResourceNotFoundException;
 import com.prakass.aps.dao.UserAccountRepository;
 import com.prakass.aps.dao.UserSessionRepository;
@@ -49,10 +50,10 @@ public class UserAccountService {
         UserSessionsEntity userSessionFromDB = userSessionRepository.save(userSessionsEntity);
 
         String accessToken =
-                jwtTokenService.generateAccessToken(userDetails.getUsername(), roles, userSessionFromDB.getAccessTokenGuid(), userSessionFromDB.getRefreshTokenGuid());
+                jwtTokenService.generateAccessToken(userDetails.getUsername(), roles, userSessionFromDB.getAccessTokenGuid());
 
         String refreshToken =
-                jwtTokenService.generateRefreshToken(userDetails.getUsername(), roles, userSessionFromDB.getAccessTokenGuid(), userSessionFromDB.getRefreshTokenGuid());
+                jwtTokenService.generateRefreshToken(userDetails.getUsername(), roles, userSessionFromDB.getRefreshTokenGuid());
 
         return new LoginResponse(accessToken, refreshToken);
     }
@@ -61,12 +62,12 @@ public class UserAccountService {
     public LoginResponse generateRefreshToken(RefreshTokenPayload payload) {
         UserTokenDetails userTokenDetails = jwtTokenService.userTokenDetails(payload.refreshToken());
 
-        UserSessionsEntity userSessionsEntity = userSessionRepository.findUserSessionsEntitiesByAccessTokenGuidAndRefreshTokenGuid(userTokenDetails.accessTokenGuid(), userTokenDetails.refreshTokenGuid())
+        UserSessionsEntity userSessionsEntity = userSessionRepository.findUserSessionsEntitiesByRefreshTokenGuid(userTokenDetails.refreshTokenGuid())
                 .orElseThrow( () -> new AuthException("Could not find user session for refresh token.")) ;
 
-        String accessToken = jwtTokenService.generateAccessToken(userTokenDetails.userName(), userTokenDetails.roles(), userSessionsEntity.getAccessTokenGuid(), userSessionsEntity.getRefreshTokenGuid());
+        String accessToken = jwtTokenService.generateAccessToken(userTokenDetails.userName(), userTokenDetails.roles(), userSessionsEntity.getAccessTokenGuid());
 
-        String refreshToken = jwtTokenService.generateAccessToken(userTokenDetails.userName(), userTokenDetails.roles(), userSessionsEntity.getAccessTokenGuid(), userSessionsEntity.getRefreshTokenGuid());
+        String refreshToken = jwtTokenService.generateAccessToken(userTokenDetails.userName(), userTokenDetails.roles(), userSessionsEntity.getRefreshTokenGuid());
 
         userSessionsEntity.setAccessTokenGuid(userTokenDetails.accessTokenGuid());
         userSessionsEntity.setRefreshTokenGuid(userTokenDetails.refreshTokenGuid());
@@ -76,7 +77,7 @@ public class UserAccountService {
         return new LoginResponse(accessToken, refreshToken);
     }
 
-    public String requestPasswordReset(SendEmailPayload payload) {
+    public String requestPasswordReset(RequestPasswordResetPayload payload) {
         UserAccountEntity userAccount = userAccountRepository.findFirstByEmail(payload.email());
 
         String passwordResetToken = jwtTokenService.generatePasswordResetToken(payload.email());
@@ -88,7 +89,7 @@ public class UserAccountService {
     @Transactional
     public void resetPassword(PasswordRequestPayload payload) {
         if(!payload.newPassword().equals(payload.confirmPassword())){
-            throw new AuthException("Password does not contain confirm password.");
+            throw new BadRequestException("Password does not contain confirm password.");
         }
 
         UserPasswordDetails userPasswordDetails = jwtTokenService.verifyResetPasswordToken(payload.token());

@@ -1,18 +1,16 @@
 package com.prakass.aps.common.base;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.prakass.aps.utils.DateUtils;
 import jakarta.persistence.EntityListeners;
 import jakarta.persistence.MappedSuperclass;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
-
 import lombok.*;
 import lombok.experimental.SuperBuilder;
-import org.mapstruct.ap.shaded.freemarker.template.utility.DateUtil;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+
+import java.time.ZonedDateTime;
 
 @Getter
 @SuperBuilder(toBuilder = true)
@@ -32,12 +30,12 @@ public class AbstractEntity {
 
   @PrePersist
   public void onPersist() {
-    this.createdAt = ZonedDateTime.now(ZoneId.of("UTC")) ;
-    this.updatedAt = ZonedDateTime.now(ZoneId.of("UTC")) ;
+    this.createdAt = DateUtils.getZonedDateTime();
+    this.updatedAt = DateUtils.getZonedDateTime();
   }
 
   @PreUpdate
   public void onUpdate() {
-    this.updatedAt = ZonedDateTime.now(ZoneId.of("UTC")) ;
+    this.updatedAt = DateUtils.getZonedDateTime();
   }
 }

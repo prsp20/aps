@@ -32,21 +32,19 @@ public class JwtTokenService {
 
 
 
-    public String generateAccessToken(String userName, Set<String> roles, String accessTokenGuid, String refreshTokenGuid) {
+    public String generateAccessToken(String userName, Set<String> roles, String accessTokenGuid) {
         Map<String, Object> claims = new HashMap<>();
 
         claims.put(ROLES, roles);
         claims.put(ACCESS_TOKEN_GUID, accessTokenGuid);
-        claims.put(REFRESH_TOKEN_GUID, refreshTokenGuid);
 
         return jwtTokenUtils.generateToken(userName, claims, accessTokenExpirationTime);
     }
 
-    public String generateRefreshToken(String userName, Set<String> roles, String accessTokenGuid, String refreshTokenGuid) {
+    public String generateRefreshToken(String userName, Set<String> roles, String refreshTokenGuid) {
         Map<String, Object> claims = new HashMap<>();
 
         claims.put(ROLES, roles);
-        claims.put(ACCESS_TOKEN_GUID, accessTokenGuid);
         claims.put(REFRESH_TOKEN_GUID, refreshTokenGuid);
 
         return jwtTokenUtils.generateToken(userName, claims, refreshTokenExpirationTime);

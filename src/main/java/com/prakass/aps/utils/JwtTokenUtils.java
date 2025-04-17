@@ -11,8 +11,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -27,16 +25,14 @@ public class JwtTokenUtils {
 
     @Value("${jwt.secret}")
     private String secretKey;
-    private final DateUtils dateUtils;
-
 
     public String generateToken(String userName, Map<String, Object> claims, long expirationTimeInSecond) {
         try {
             return Jwts.builder()
                     .claims(claims)
                     .subject(userName)
-                    .issuedAt(dateUtils.convertZonedDateTimeToDate(dateUtils.getZonedDateTime()))
-                    .expiration(dateUtils.convertZonedDateTimeToDate(dateUtils.getZonedDateTime().plusSeconds(expirationTimeInSecond)))
+                    .issuedAt(DateUtils.convertZonedDateTimeToDate(DateUtils.getZonedDateTime()))
+                    .expiration(DateUtils.convertZonedDateTimeToDate(DateUtils.getZonedDateTime().plusSeconds(expirationTimeInSecond)))
                     .signWith(getSignInKey())
                     .compact();
         } catch (Exception e) {
