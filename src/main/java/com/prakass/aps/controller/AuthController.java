@@ -48,4 +48,16 @@ public class AuthController {
     LoginResponse loginResponse = userAccountService.generateRefreshToken(refreshToken);
     return new ResponseEntity<>(loginResponse, HttpStatus.OK);
   }
+
+  @GetMapping("/request-password-reset")
+  public ResponseEntity<String> requestPasswordReset(@RequestParam("email") String email) {
+    return new ResponseEntity<>(userAccountService.requestPasswordReset(email), HttpStatus.OK);
+  }
+
+  @PostMapping("/forget-password")
+  public ResponseEntity<String> resetPassword(@RequestBody PasswordRequestPayload passwordRequestPayload) {
+    userAccountService.resetPassword(passwordRequestPayload);
+    return new ResponseEntity<>("Successfully password updated", HttpStatus.OK);
+  }
+
 }

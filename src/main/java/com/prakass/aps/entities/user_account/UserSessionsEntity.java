@@ -22,4 +22,6 @@ public class UserSessionsEntity extends AbstractEntity {
   private String refreshTokenGuid;
 
   private boolean revoked;
+
+  private String userName;
 }

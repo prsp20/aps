@@ -1,5 +1,7 @@
 package com.prakass.aps.service;
 
+import com.prakass.aps.dto.PasswordType;
+import com.prakass.aps.dto.UserPasswordDetails;
 import com.prakass.aps.dto.UserTokenDetails;
 import com.prakass.aps.utils.JwtTokenUtils;
 import org.springframework.beans.factory.annotation.Value;
@@ -12,15 +14,17 @@ public class JwtTokenService {
 
     private final long accessTokenExpirationTime;
     private final long refreshTokenExpirationTime;
+    private final long passwordResetExpirationTime;
 
     private final JwtTokenUtils jwtTokenUtils;
     public  JwtTokenService(@Value("${jwt.access-token.expiration-seconds}") long accessTokenExpirationTime,
                             @Value("${jwt.refresh-token.expiration-seconds}") long refreshTokenExpirationTime,
+                            @Value("${jwt.password-reset-token-expiration-seconds}") long passwordResetExpirationTime,
                             JwtTokenUtils jwtTokenUtils){
-
         this.jwtTokenUtils = jwtTokenUtils;
         this.accessTokenExpirationTime = accessTokenExpirationTime;
         this.refreshTokenExpirationTime = refreshTokenExpirationTime;
+        this.passwordResetExpirationTime = passwordResetExpirationTime;
     }
 
 
@@ -36,4 +40,11 @@ public class JwtTokenService {
         return jwtTokenUtils.verifyToken(token);
     }
 
+    public String generatePasswordResetToken(String email) {
+        return jwtTokenUtils.generatePasswordResetToken(email, passwordResetExpirationTime, PasswordType.RESET_PASSWORD);
+    }
+
+    public UserPasswordDetails verifyResetPasswordToken(String token) {
+        return jwtTokenUtils.verifyResetPasswordToken(token);
+    }
 }

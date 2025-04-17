@@ -1,6 +1,8 @@
 package com.prakass.aps.utils;
 
 import com.prakass.aps.common.exception.AuthException;
+import com.prakass.aps.dto.PasswordType;
+import com.prakass.aps.dto.UserPasswordDetails;
 import com.prakass.aps.dto.UserTokenDetails;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -52,7 +54,6 @@ public class JwtTokenUtils {
               .build()
               .parseSignedClaims(token)
               .getPayload();
-
       Set<String> roles = new HashSet<>();
       String userName = claims.get("sub", String.class);
       String accessTokenGuid  = claims.get(ACCESS_TOKEN_GUID, String.class);
@@ -74,4 +75,33 @@ public class JwtTokenUtils {
     return Keys.hmacShaKeyFor(keyBytes);
   }
 
+  public String generatePasswordResetToken(String email, long expirationTimeInSecond, PasswordType passwordType) {
+    try {
+      return Jwts.builder()
+              .claim("passwordType", passwordType.getType())
+              .subject(email)
+              .issuedAt(new Date(System.currentTimeMillis()))
+              .expiration(new Date(System.currentTimeMillis() + (expirationTimeInSecond * 1000L)))
+              .signWith(getSignInKey())
+              .compact();
+    }catch (Exception e) {
+      throw new AuthException(e.getMessage(), HttpStatus.BAD_REQUEST);
+    }
+  }
+
+  public UserPasswordDetails verifyResetPasswordToken(String token) {
+    try{
+      Claims claims = Jwts.parser()
+              .verifyWith(getSignInKey()) // use the same secret key as in generateToken
+              .build()
+              .parseSignedClaims(token)
+              .getPayload();
+      final String name = claims.get("sub", String.class);
+      final String passwordType = claims.get("passwordType", String.class);
+      return new UserPasswordDetails(name, passwordType);
+
+    }catch (Exception e) {
+      throw new AuthException(e.getMessage(), HttpStatus.BAD_REQUEST);
+    }
+  }
 }
