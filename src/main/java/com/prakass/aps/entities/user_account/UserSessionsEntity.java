@@ -2,9 +2,6 @@ package com.prakass.aps.entities.user_account;
 
 import com.prakass.aps.common.base.AbstractEntity;
 import jakarta.persistence.*;
-import java.time.Instant;
-import java.time.LocalDateTime;
-
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 
@@ -24,9 +21,5 @@ public class UserSessionsEntity extends AbstractEntity {
 
   private String refreshTokenGuid;
 
-//  private LocalDateTime expiresAt;
-
   private boolean revoked;
-
-
 }

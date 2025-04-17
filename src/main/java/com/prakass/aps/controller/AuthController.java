@@ -29,7 +29,7 @@ public class AuthController {
   }
 
   @PostMapping("/login")
-  public ResponseEntity<LoginResponseWithToken> login(
+  public ResponseEntity<LoginResponse> login(
       @Valid @RequestBody UserLoginPayload userLoginPayload) {
     UserDetails userDetails =
         (UserDetails)
@@ -38,13 +38,14 @@ public class AuthController {
                     new UsernamePasswordAuthenticationToken(
                         userLoginPayload.email(), userLoginPayload.password()))
                 .getPrincipal();
-    LoginResponseWithToken userLoginResponse = userAccountService.getUserLoginResponse(userDetails);
+    LoginResponse userLoginResponse = userAccountService.getUserLoginResponse(userDetails);
     return new ResponseEntity<>(userLoginResponse, HttpStatus.OK);
   }
 
   @PostMapping("/refresh-token")
-  public ResponseEntity<LoginResponseWithToken> refreshToken(@RequestBody RefreshTokenPayload refreshToken) {
-    LoginResponseWithToken loginResponse = userAccountService.generateRefreshToken(refreshToken);
+  public ResponseEntity<LoginResponse> refreshToken(
+      @RequestBody RefreshTokenPayload refreshToken) {
+    LoginResponse loginResponse = userAccountService.generateRefreshToken(refreshToken);
     return new ResponseEntity<>(loginResponse, HttpStatus.OK);
   }
 }

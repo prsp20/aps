@@ -32,7 +32,10 @@ public class SecurityConfig {
     http.csrf(AbstractHttpConfigurer::disable)
         .authorizeHttpRequests(
             authorize -> {
-              authorize.requestMatchers("/api/v1/auth/login", "/api/v1/auth/signup", "/api/v1/auth/refresh-token").permitAll();
+              authorize
+                  .requestMatchers(
+                      "/api/v1/auth/login", "/api/v1/auth/signup", "/api/v1/auth/refresh-token")
+                  .permitAll();
               authorize.anyRequest().authenticated();
             })
         .authenticationProvider(authenticationProvider)

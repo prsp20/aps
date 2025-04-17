@@ -35,9 +35,6 @@ public class SessionJwtTokenUtil {
 
     UserSessionsEntity userSessionsEntity =
         UserSessionsEntity.builder()
-//            .sessionGuid(sessionGuid)
-//            .userAccount(userAccountEntity)
-//            .expiresAt(LocalDateTime.from(expiresAt))
             .revoked(false)
             .build();
     return SessionJwtToken.builder()
