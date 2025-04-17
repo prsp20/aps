@@ -66,9 +66,9 @@ public class UserAccountService {
                 .orElseThrow( () -> new ResourceNotFoundException("Could not find user session for refresh token", HttpStatus.BAD_REQUEST)) ;
         String accessToken = jwtTokenService.generateAccessToken(userTokenDetails.userName(), userTokenDetails.roles(), userSessionsEntity.getAccessTokenGuid(), userSessionsEntity.getRefreshTokenGuid());
         String refreshToken = jwtTokenService.generateAccessToken(userTokenDetails.userName(), userTokenDetails.roles(), userSessionsEntity.getAccessTokenGuid(), userSessionsEntity.getRefreshTokenGuid());
-        userSessionsEntity.setAccessTokenGuid(accessToken);
-        userSessionsEntity.setRefreshTokenGuid(refreshToken);
-        UserSessionsEntity userSessionsDB = userSessionRepository.save(userSessionsEntity);
-        return new LoginResponse(userSessionsDB.getAccessTokenGuid(), userSessionsDB.getRefreshTokenGuid());
+        userSessionsEntity.setAccessTokenGuid(userTokenDetails.accessTokenGuid());
+        userSessionsEntity.setRefreshTokenGuid(userTokenDetails.refreshTokenGuid());
+        userSessionRepository.save(userSessionsEntity);
+        return new LoginResponse(accessToken, refreshToken);
     }
 }

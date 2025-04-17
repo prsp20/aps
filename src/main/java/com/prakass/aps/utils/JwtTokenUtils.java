@@ -27,18 +27,22 @@ public class JwtTokenUtils {
   private static final String ACCESS_TOKEN_GUID = "accessTokenGuid";
   private static final String REFRESH_TOKEN_GUID = "refreshTokenGuid";
 
-  public String generateToken(String userName, Set<String> roles, String accessGuid, String refreshGuid,  long expirationTime) {
-    Map<String, Object> claims = new HashMap<>();
-    claims.put(ROLES, roles);
-    claims.put(ACCESS_TOKEN_GUID, accessGuid);
-    claims.put(REFRESH_TOKEN_GUID, refreshGuid);
-    return Jwts.builder()
-        .claims(claims)
-        .subject(userName)
-        .issuedAt(new Date(System.currentTimeMillis()))
-        .expiration(new Date(System.currentTimeMillis() + expirationTime))
-        .signWith(getSignInKey())
-        .compact();
+  public String generateToken(String userName, Set<String> roles, String accessGuid, String refreshGuid,  long expirationTimeInSecond) {
+    try {
+      Map<String, Object> claims = new HashMap<>();
+      claims.put(ROLES, roles);
+      claims.put(ACCESS_TOKEN_GUID, accessGuid);
+      claims.put(REFRESH_TOKEN_GUID, refreshGuid);
+      return Jwts.builder()
+              .claims(claims)
+              .subject(userName)
+              .issuedAt(new Date(System.currentTimeMillis()))
+              .expiration(new Date(System.currentTimeMillis() + (expirationTimeInSecond * 1000L)))
+              .signWith(getSignInKey())
+              .compact();
+    }catch (Exception e) {
+      throw new AuthException(e.getMessage(), HttpStatus.BAD_REQUEST);
+    }
   }
 
   public UserTokenDetails verifyToken(String token) {
@@ -59,10 +63,7 @@ public class JwtTokenUtils {
       } else {
         roles = new HashSet<>();
       }
-
       return new UserTokenDetails(userName, roles, accessTokenGuid, refreshTokenGuid);
-
-
     } catch (Exception e) {
       throw  new AuthException(e.getMessage(), HttpStatus.BAD_REQUEST);
     }
