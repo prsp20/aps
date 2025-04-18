@@ -4,11 +4,11 @@ import lombok.Getter;
 
 @Getter
 public enum TokenType {
-    RESET_PASSWORD("resetPassword");
+  RESET_PASSWORD("resetPassword");
 
-    private final String type;
+  private final String type;
 
-    TokenType(String type){
-        this.type = type;
-    }
+  TokenType(String type) {
+    this.type = type;
+  }
 }

@@ -34,7 +34,11 @@ public class SecurityConfig {
             authorize -> {
               authorize
                   .requestMatchers(
-                      "/api/v1/auth/login", "/api/v1/auth/signup", "/api/v1/auth/refresh-token", "/api/v1/auth/request-password-reset", "/api/v1/auth/forget-password")
+                      "/api/v1/auth/login",
+                      "/api/v1/auth/signup",
+                      "/api/v1/auth/refresh-token",
+                      "/api/v1/auth/request-password-reset",
+                      "/api/v1/auth/forget-password")
                   .permitAll();
               authorize.anyRequest().authenticated();
             })

@@ -74,7 +74,7 @@ public class GlobalExceptionHandler {
   @ExceptionHandler(BadRequestException.class)
   public ResponseEntity<ResponseDto> handleBadRequestException(BadRequestException e) {
     return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-            .contentType(MediaType.APPLICATION_JSON)
-            .body(ResponseDto.builder().status("Bad request").message(e.getMessage()).build());
+        .contentType(MediaType.APPLICATION_JSON)
+        .body(ResponseDto.builder().status("Bad request").message(e.getMessage()).build());
   }
 }
