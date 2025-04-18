@@ -186,6 +186,35 @@ public class AuthControllerTest {
   }
 
   @Test
+  void testRequestPasswordReset() throws Exception {
+    // Arrange
+    RequestPasswordResetPayload payload = new RequestPasswordResetPayload("ram.123@gmail.com");
+    mockMvc
+        .perform(
+            post("/api/v1/auth/request-password-reset")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(payload)))
+        .andExpect(status().isOk());
+    verify(authService, times(1)).requestPasswordReset(any(RequestPasswordResetPayload.class));
+  }
+
+  @Test
+  void testRequestPasswordResetWithInvalidEmail() throws Exception {
+    RequestPasswordResetPayload payload = new RequestPasswordResetPayload(null);
+    String[] expectedMessages = {"Email Cannot be null"};
+    mockMvc
+        .perform(
+            post("/api/v1/auth/request-password-reset")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(payload)))
+        .andExpect(status().isBadRequest())
+        .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+        .andExpect(
+            MockMvcResultMatchers.jsonPath("$.validation_errors[*].message")
+                .value(Matchers.hasItems(expectedMessages)));
+  }
+
+  @Test
   void testResetPassword_ReturnsOk() throws Exception {
     // Arrange
     PasswordRequestPayload payload = new PasswordRequestPayload("random-token", "New", "New");
@@ -197,6 +226,7 @@ public class AuthControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(payload)))
         .andExpect(status().isOk())
+        .andExpect(content().contentType(MediaType.APPLICATION_JSON))
         .andExpect(content().string("Password successfully updated"));
 
     verify(authService, times(1)).resetPassword(any(PasswordRequestPayload.class));
@@ -204,8 +234,28 @@ public class AuthControllerTest {
 
   @Test
   void testResetPassword_ReturnsValidationMessagesOnInvalidPayload() throws Exception {
-    PasswordRequestPayload payload = new PasswordRequestPayload(null, "New", "New");
-    String[] expectedMessages = {"Token cannot be null"};
+    PasswordRequestPayload payload = new PasswordRequestPayload(null, null, null);
+    String[] expectedMessages = {
+      "Token cannot be null", "Password cannot be null", "Password confirmation cannot be null"
+    };
+    mockMvc
+        .perform(
+            post("/api/v1/auth/forget-password")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(payload)))
+        .andExpect(status().isBadRequest())
+        .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+        .andExpect(
+            MockMvcResultMatchers.jsonPath("$.validation_errors[*].message")
+                .value(Matchers.hasItems(expectedMessages)));
+  }
+
+  @Test
+  void testResetPassword_AddingBlank_ReturnsValidationMessagesOnInvalidPayload() throws Exception {
+    PasswordRequestPayload payload = new PasswordRequestPayload("Testing on it", "", "");
+    String[] expectedMessages = {
+      "Password cannot be blank", "Password confirmation cannot be blank"
+    };
     mockMvc
         .perform(
             post("/api/v1/auth/forget-password")
