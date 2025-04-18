@@ -55,7 +55,7 @@ public class JwtTokenService {
 
   public String generatePasswordResetToken(String email) {
     Map<String, Object> claims = new HashMap<>();
-    claims.put(PASSWORD_TYPE, TokenType.RESET_PASSWORD);
+    claims.put(PASSWORD_TYPE, TokenType.RESET_PASSWORD.getType());
     return jwtTokenUtils.generateToken(email, claims, passwordResetExpirationTime);
   }
 
