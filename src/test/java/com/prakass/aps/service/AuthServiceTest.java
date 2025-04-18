@@ -6,13 +6,12 @@ import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 import com.prakass.aps.common.exception.AuthException;
+import com.prakass.aps.common.exception.BadRequestException;
 import com.prakass.aps.common.exception.DuplicateEmailException;
+import com.prakass.aps.common.exception.ResourceNotFoundException;
 import com.prakass.aps.dao.UserAccountRepository;
 import com.prakass.aps.dao.UserSessionRepository;
-import com.prakass.aps.dto.LoginResponse;
-import com.prakass.aps.dto.RefreshTokenPayload;
-import com.prakass.aps.dto.UserSignupPayload;
-import com.prakass.aps.dto.UserTokenDetails;
+import com.prakass.aps.dto.*;
 import com.prakass.aps.entities.user_account.UserAccountEntity;
 import com.prakass.aps.entities.user_account.UserSessionsEntity;
 import com.prakass.aps.mapper.UserAccountMapper;
@@ -230,5 +229,83 @@ public class AuthServiceTest {
         .generateAccessToken(eq(username), anySet(), eq(savedUserSession.getAccessTokenGuid()));
     verify(jwtTokenService)
         .generateRefreshToken(eq(username), anySet(), eq(savedUserSession.getRefreshTokenGuid()));
+  }
+
+  @Test
+  void testResetPassword_Success() {
+    // Arrange
+    String token = "valid-token";
+    String newPassword = "TestPassword";
+    PasswordRequestPayload payload = new PasswordRequestPayload(token, newPassword, newPassword);
+
+    // Stub the token verification to return valid details
+    UserPasswordDetails details =
+        new UserPasswordDetails("test@example.com", TokenType.RESET_PASSWORD.getType());
+    when(jwtTokenService.verifyResetPasswordToken(token)).thenReturn(details);
+
+    // Stub the user account repository to return a valid user account
+    UserAccountEntity userAccount = new UserAccountEntity();
+    userAccount.setEmail("test@example.com");
+    when(userAccountRepository.findFirstByEmail("test@example.com")).thenReturn(userAccount);
+
+    // Stub the password encoding
+    String encodedPassword = "encodedPassword";
+    when(passwordEncoder.encode(newPassword)).thenReturn(encodedPassword);
+
+    // Act
+    authService.resetPassword(payload);
+
+    // Assert: the user's password hash is updated and saved
+    assertEquals(encodedPassword, userAccount.getPasswordHash());
+    verify(userAccountRepository).save(userAccount);
+  }
+
+  @Test
+  void testResetPassword_MismatchedPasswords() {
+    // Arrange: newPassword and confirmPassword do not match
+    PasswordRequestPayload payload = new PasswordRequestPayload("token", "password1", "password2");
+
+    // Act and Assert: expecting BadRequestException with the appropriate message
+    BadRequestException thrown =
+        assertThrows(BadRequestException.class, () -> authService.resetPassword(payload));
+    assertEquals("Password does not contain confirm password.", thrown.getMessage());
+  }
+
+  @Test
+  void testResetPassword_InvalidTokenType() {
+    // Arrange
+    String token = "valid-token";
+    String newPassword = "TestPassword";
+    PasswordRequestPayload payload = new PasswordRequestPayload(token, newPassword, newPassword);
+
+    // Simulate a token that is not of type RESET_PASSWORD
+    UserPasswordDetails details = new UserPasswordDetails("test@example.com", "SOME_OTHER_TYPE");
+    when(jwtTokenService.verifyResetPasswordToken(token)).thenReturn(details);
+
+    // Act and Assert: expecting an AuthException with the appropriate message
+    AuthException thrown =
+        assertThrows(AuthException.class, () -> authService.resetPassword(payload));
+    assertEquals("Invalid token.", thrown.getMessage());
+  }
+
+  @Test
+  void testResetPassword_UserNotFound() {
+    // Arrange
+    String token = "valid-token";
+    String newPassword = "TestPassword";
+    PasswordRequestPayload payload = new PasswordRequestPayload(token, newPassword, newPassword);
+
+    // Token verification returns valid details
+    UserPasswordDetails details =
+        new UserPasswordDetails("test@example.com", TokenType.RESET_PASSWORD.getType());
+    when(jwtTokenService.verifyResetPasswordToken(token)).thenReturn(details);
+
+    // Simulate that no user account was found
+    when(userAccountRepository.findFirstByEmail("test@example.com")).thenReturn(null);
+
+    // Act and Assert: expecting ResourceNotFoundException with the appropriate message
+    ResourceNotFoundException thrown =
+        assertThrows(ResourceNotFoundException.class, () -> authService.resetPassword(payload));
+    assertEquals("Could not find user account.", thrown.getMessage());
   }
 }
