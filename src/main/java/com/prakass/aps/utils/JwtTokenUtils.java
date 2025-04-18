@@ -58,7 +58,12 @@ public class JwtTokenUtils {
       roles = new HashSet<>();
     }
 
-    return new UserTokenDetails(userName, roles, accessTokenGuid, refreshTokenGuid);
+    return UserTokenDetails.builder()
+        .userName(userName)
+        .roles(roles)
+        .accessTokenGuid(accessTokenGuid)
+        .refreshTokenGuid(refreshTokenGuid)
+        .build();
   }
 
   private SecretKey getSignInKey() {
@@ -78,6 +83,6 @@ public class JwtTokenUtils {
     Claims claims = getClaimsFromToken(token);
     final String name = claims.get("sub", String.class);
     final String passwordType = claims.get("passwordType", String.class);
-    return new UserPasswordDetails(name, passwordType);
+    return UserPasswordDetails.builder().username(name).passwordType(passwordType).build();
   }
 }

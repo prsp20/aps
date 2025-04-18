@@ -36,14 +36,14 @@ public class AuthController {
                     new UsernamePasswordAuthenticationToken(
                         userLoginPayload.email(), userLoginPayload.password()))
                 .getPrincipal();
-    LoginResponse userLoginResponse = authService.getUserLoginResponse(userDetails);
+    LoginResponse userLoginResponse = authService.login(userDetails);
     return new ResponseEntity<>(userLoginResponse, HttpStatus.OK);
   }
 
   @PostMapping("/refresh-token")
   public ResponseEntity<LoginResponse> refreshToken(
       @RequestBody @Valid RefreshTokenPayload refreshToken) {
-    LoginResponse loginResponse = authService.generateRefreshToken(refreshToken);
+    LoginResponse loginResponse = authService.refreshToken(refreshToken);
     return new ResponseEntity<>(loginResponse, HttpStatus.OK);
   }
 
@@ -53,7 +53,7 @@ public class AuthController {
     return new ResponseEntity<>(authService.requestPasswordReset(payload), HttpStatus.OK);
   }
 
-  @PostMapping("/forget-password")
+  @PostMapping("/reset-password")
   public ResponseEntity<String> resetPassword(
       @RequestBody @Valid PasswordRequestPayload passwordRequestPayload) {
     authService.resetPassword(passwordRequestPayload);

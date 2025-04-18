@@ -52,7 +52,7 @@ public class AuthService {
   }
 
   @Transactional
-  public LoginResponse getUserLoginResponse(UserDetails userDetails) {
+  public LoginResponse login(UserDetails userDetails) {
     Set<String> roles =
         userDetails.getAuthorities().stream()
             .map(GrantedAuthority::getAuthority)
@@ -80,7 +80,7 @@ public class AuthService {
   }
 
   @Transactional
-  public LoginResponse generateRefreshToken(RefreshTokenPayload payload) {
+  public LoginResponse refreshToken(RefreshTokenPayload payload) {
     UserTokenDetails userTokenDetails = jwtTokenService.userTokenDetails(payload.refreshToken());
 
     UserSessionsEntity userSessionsEntity =
@@ -120,7 +120,7 @@ public class AuthService {
   @Transactional
   public void resetPassword(PasswordRequestPayload payload) {
     if (!payload.newPassword().equals(payload.confirmPassword())) {
-      throw new BadRequestException("Password does not contain confirm password.");
+      throw new BadRequestException("Password do not match with the confirm password.");
     }
 
     UserPasswordDetails userPasswordDetails =

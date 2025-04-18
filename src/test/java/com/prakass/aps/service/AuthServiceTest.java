@@ -127,7 +127,7 @@ public class AuthServiceTest {
   }
 
   @Test
-  public void testGenerateRefreshToken_Success() {
+  public void testRefreshToken_Success() {
     // Arrange
     String username = "unique-mail@email.com";
     Set<String> roles = Set.of("ROLE_USER");
@@ -153,7 +153,7 @@ public class AuthServiceTest {
         .thenReturn("new-refresh-token");
 
     // Act
-    LoginResponse response = authService.generateRefreshToken(refreshTokenPayload);
+    LoginResponse response = authService.refreshToken(refreshTokenPayload);
 
     // Assert
     assertNotNull(response);
@@ -165,7 +165,7 @@ public class AuthServiceTest {
   }
 
   @Test
-  public void testGenerateRefreshToken_UserSessionNotFound() {
+  public void testRefreshToken_UserSessionNotFound() {
     String username = "unique-mail@email.com";
     Set<String> roles = Set.of("ROLE_USER");
     String accessTokenGuid = UUID.randomUUID().toString();
@@ -184,7 +184,7 @@ public class AuthServiceTest {
         assertThrows(
             AuthException.class,
             () -> {
-              authService.generateRefreshToken(refreshTokenPayload);
+              authService.refreshToken(refreshTokenPayload);
             });
 
     assertEquals("Could not find user session for refresh token.", exception.getMessage());
@@ -193,7 +193,7 @@ public class AuthServiceTest {
   }
 
   @Test
-  public void testGetUserLoginResponse_Success() {
+  public void testLogin_Success() {
     // Arrange
     String username = "unique-mail@email.com";
 
@@ -213,7 +213,7 @@ public class AuthServiceTest {
     when(jwtTokenService.generateRefreshToken(anyString(), anySet(), anyString()))
         .thenReturn("mocked-refresh-token");
 
-    LoginResponse response = authService.getUserLoginResponse(userDetails);
+    LoginResponse response = authService.login(userDetails);
 
     assertNotNull(response);
     assertEquals("mocked-access-token", response.accessToken());
@@ -268,7 +268,7 @@ public class AuthServiceTest {
     // Act and Assert: expecting BadRequestException with the appropriate message
     BadRequestException thrown =
         assertThrows(BadRequestException.class, () -> authService.resetPassword(payload));
-    assertEquals("Password does not contain confirm password.", thrown.getMessage());
+    assertEquals("Password do not match with the confirm password.", thrown.getMessage());
   }
 
   @Test

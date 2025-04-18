@@ -147,7 +147,7 @@ public class AuthControllerTest {
     LoginResponse userLoginResponse =
         LoginResponse.builder().accessToken("accessToken").refreshToken("refreshToken").build();
 
-    when(authService.getUserLoginResponse(user)).thenReturn(userLoginResponse);
+    when(authService.login(user)).thenReturn(userLoginResponse);
 
     when(authService.loginUserAndCreateSessionToken(user))
         .thenReturn(userLoginResponse.refreshToken());
@@ -195,7 +195,7 @@ public class AuthControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(payload)))
         .andExpect(status().isOk());
-    verify(authService, times(1)).requestPasswordReset(any(RequestPasswordResetPayload.class));
+    verify(authService, times(1)).requestPasswordReset(payload);
   }
 
   @Test
@@ -222,13 +222,13 @@ public class AuthControllerTest {
     // Act & Assert
     mockMvc
         .perform(
-            post("/api/v1/auth/forget-password")
+            post("/api/v1/auth/reset-password")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(payload)))
         .andExpect(status().isOk())
         .andExpect(content().string("Password successfully updated"));
 
-    verify(authService, times(1)).resetPassword(any(PasswordRequestPayload.class));
+    verify(authService, times(1)).resetPassword(payload);
   }
 
   @Test
@@ -239,7 +239,7 @@ public class AuthControllerTest {
     };
     mockMvc
         .perform(
-            post("/api/v1/auth/forget-password")
+            post("/api/v1/auth/reset-password")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(payload)))
         .andExpect(status().isBadRequest())
@@ -257,7 +257,7 @@ public class AuthControllerTest {
     };
     mockMvc
         .perform(
-            post("/api/v1/auth/forget-password")
+            post("/api/v1/auth/reset-password")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(payload)))
         .andExpect(status().isBadRequest())

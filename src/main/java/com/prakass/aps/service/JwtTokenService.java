@@ -21,7 +21,7 @@ public class JwtTokenService {
   public static final String PASSWORD_TYPE = "passwordType";
 
   @Value("${jwt.access-token.expiration-seconds}")
-  public long accessTokenExpirationTime;
+  private long accessTokenExpirationTime;
 
   @Value("${jwt.refresh-token.expiration-seconds}")
   private long refreshTokenExpirationTime;
