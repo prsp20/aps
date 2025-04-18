@@ -1,41 +1,38 @@
- package com.prakass.aps.controller;
+package com.prakass.aps.controller;
 
- import static org.hamcrest.Matchers.containsString;
- import static org.hamcrest.Matchers.equalTo;
- import static org.mockito.ArgumentMatchers.any;
- import static org.mockito.Mockito.when;
- import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
- import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
- import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.equalTo;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
- import com.fasterxml.jackson.databind.ObjectMapper;
- import com.prakass.aps.dto.LoginResponse;
- import com.prakass.aps.dto.SignUpResponsePayload;
- import com.prakass.aps.dto.UserLoginPayload;
- import com.prakass.aps.dto.UserSignupPayload;
- import com.prakass.aps.security.SecurityConfig;
- import com.prakass.aps.service.AuthService;
- import java.time.LocalDateTime;
- import org.hamcrest.Matchers;
- import org.junit.jupiter.api.BeforeEach;
- import org.junit.jupiter.api.Test;
- import org.springframework.beans.factory.annotation.Autowired;
- import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
- import org.springframework.context.annotation.Import;
- import org.springframework.http.MediaType;
- import org.springframework.security.authentication.AuthenticationManager;
- import org.springframework.security.authentication.AuthenticationProvider;
- import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
- import org.springframework.security.core.authority.SimpleGrantedAuthority;
- import org.springframework.security.core.userdetails.User;
- import org.springframework.security.core.userdetails.UserDetails;
- import org.springframework.test.context.bean.override.mockito.MockitoBean;
- import org.springframework.test.web.servlet.MockMvc;
- import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.prakass.aps.dto.*;
+import com.prakass.aps.security.SecurityConfig;
+import com.prakass.aps.service.AuthService;
+import java.time.LocalDateTime;
+import org.hamcrest.Matchers;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.context.annotation.Import;
+import org.springframework.http.MediaType;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
- @WebMvcTest(controllers = AuthController.class)
- @Import(SecurityConfig.class)
- public class AuthControllerTest {
+@WebMvcTest(controllers = AuthController.class)
+@Import(SecurityConfig.class)
+public class AuthControllerTest {
   @Autowired private MockMvc mockMvc;
 
   @MockitoBean private AuthService authService;
@@ -82,8 +79,7 @@
         .andExpect(status().isCreated())
         .andExpect(content().contentType(MediaType.APPLICATION_JSON))
         .andExpect(
-
- MockMvcResultMatchers.jsonPath("$.firstName").value(signUpResponsePayload.firstName()))
+            MockMvcResultMatchers.jsonPath("$.firstName").value(signUpResponsePayload.firstName()))
         .andExpect(
             MockMvcResultMatchers.jsonPath("$.lastName").value(signUpResponsePayload.lastName()))
         .andExpect(MockMvcResultMatchers.jsonPath("$.guid").value(signUpResponsePayload.guid()))
@@ -121,7 +117,6 @@
       "First name is required",
       "Last name is required",
     };
-
     mockMvc
         .perform(
             post("/api/v1/auth/signup")
@@ -150,10 +145,12 @@
         .thenReturn(new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities()));
 
     LoginResponse userLoginResponse =
- LoginResponse.builder().accessToken("accessToken").refreshToken("refreshToken").build();
+        LoginResponse.builder().accessToken("accessToken").refreshToken("refreshToken").build();
 
+    when(authService.getUserLoginResponse(user)).thenReturn(userLoginResponse);
 
- when(authService.loginUserAndCreateSessionToken(user)).thenReturn(userLoginResponse.refreshToken());
+    when(authService.loginUserAndCreateSessionToken(user))
+        .thenReturn(userLoginResponse.refreshToken());
 
     mockMvc
         .perform(
@@ -163,7 +160,10 @@
         .andExpect(status().isOk())
         .andExpect(content().contentType(MediaType.APPLICATION_JSON))
         .andExpect(
-            MockMvcResultMatchers.jsonPath("$.jwtToken").value(userLoginResponse.refreshToken()));
+            MockMvcResultMatchers.jsonPath("$.accessToken").value(userLoginResponse.accessToken()))
+        .andExpect(
+            MockMvcResultMatchers.jsonPath("$.refreshToken")
+                .value(userLoginResponse.refreshToken()));
   }
 
   @Test
@@ -185,7 +185,36 @@
                 .value(Matchers.hasItems(expectedMessages)));
   }
 
-  
+  @Test
+  void testResetPassword_ReturnsOk() throws Exception {
+    // Arrange
+    PasswordRequestPayload payload = new PasswordRequestPayload("random-token", "New", "New");
 
+    // Act & Assert
+    mockMvc
+        .perform(
+            post("/api/v1/auth/forget-password")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(payload)))
+        .andExpect(status().isOk())
+        .andExpect(content().string("Password successfully updated"));
 
- }
+    verify(authService, times(1)).resetPassword(any(PasswordRequestPayload.class));
+  }
+
+  @Test
+  void testResetPassword_ReturnsValidationMessagesOnInvalidPayload() throws Exception {
+    PasswordRequestPayload payload = new PasswordRequestPayload(null, "New", "New");
+    String[] expectedMessages = {"Token cannot be null"};
+    mockMvc
+        .perform(
+            post("/api/v1/auth/forget-password")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(payload)))
+        .andExpect(status().isBadRequest())
+        .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+        .andExpect(
+            MockMvcResultMatchers.jsonPath("$.validation_errors[*].message")
+                .value(Matchers.hasItems(expectedMessages)));
+  }
+}
