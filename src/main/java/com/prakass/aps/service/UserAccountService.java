@@ -8,7 +8,8 @@ import org.springframework.stereotype.Service;
 @Service
 @AllArgsConstructor
 public class UserAccountService {
-  private UserAccountRepository userAccountRepository;
+
+  private final UserAccountRepository userAccountRepository;
 
   public UserAccountEntity getUserAccountWithRoles(Long id) {
     UserAccountEntity userAccount = userAccountRepository.findById(id).get();

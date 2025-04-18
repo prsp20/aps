@@ -1,12 +1,18 @@
 package com.prakass.aps.controller;
 
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.equalTo;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.prakass.aps.dto.LoginResponse;
-import com.prakass.aps.dto.SignUpResponsePayload;
-import com.prakass.aps.dto.UserLoginPayload;
-import com.prakass.aps.dto.UserSignupPayload;
+import com.prakass.aps.dto.*;
 import com.prakass.aps.security.SecurityConfig;
 import com.prakass.aps.service.AuthService;
+import java.time.LocalDateTime;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -23,16 +29,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
-
-import java.time.LocalDateTime;
-
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.equalTo;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(controllers = AuthController.class)
 @Import(SecurityConfig.class)
@@ -121,7 +117,6 @@ public class AuthControllerTest {
       "First name is required",
       "Last name is required",
     };
-
     mockMvc
         .perform(
             post("/api/v1/auth/signup")
@@ -149,9 +144,13 @@ public class AuthControllerTest {
     when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
         .thenReturn(new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities()));
 
-    LoginResponse userLoginResponse = LoginResponse.builder().jwtToken("random-jwt-token").build();
+    LoginResponse userLoginResponse =
+        LoginResponse.builder().accessToken("accessToken").refreshToken("refreshToken").build();
 
-    when(authService.loginUserAndCreateSessionToken(user)).thenReturn(userLoginResponse.jwtToken());
+    when(authService.login(user)).thenReturn(userLoginResponse);
+
+    when(authService.loginUserAndCreateSessionToken(user))
+        .thenReturn(userLoginResponse.refreshToken());
 
     mockMvc
         .perform(
@@ -161,7 +160,10 @@ public class AuthControllerTest {
         .andExpect(status().isOk())
         .andExpect(content().contentType(MediaType.APPLICATION_JSON))
         .andExpect(
-            MockMvcResultMatchers.jsonPath("$.jwtToken").value(userLoginResponse.jwtToken()));
+            MockMvcResultMatchers.jsonPath("$.accessToken").value(userLoginResponse.accessToken()))
+        .andExpect(
+            MockMvcResultMatchers.jsonPath("$.refreshToken")
+                .value(userLoginResponse.refreshToken()));
   }
 
   @Test
@@ -176,6 +178,88 @@ public class AuthControllerTest {
             post("/api/v1/auth/signup")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(userLoginPayload)))
+        .andExpect(status().isBadRequest())
+        .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+        .andExpect(
+            MockMvcResultMatchers.jsonPath("$.validation_errors[*].message")
+                .value(Matchers.hasItems(expectedMessages)));
+  }
+
+  @Test
+  void testRequestPasswordReset() throws Exception {
+    // Arrange
+    RequestPasswordResetPayload payload = new RequestPasswordResetPayload("ram.123@gmail.com");
+    mockMvc
+        .perform(
+            post("/api/v1/auth/request-password-reset")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(payload)))
+        .andExpect(status().isOk());
+    verify(authService, times(1)).requestPasswordReset(payload);
+  }
+
+  @Test
+  void testRequestPasswordResetWithInvalidEmail() throws Exception {
+    RequestPasswordResetPayload payload = new RequestPasswordResetPayload(null);
+    String[] expectedMessages = {"Email Cannot be null"};
+    mockMvc
+        .perform(
+            post("/api/v1/auth/request-password-reset")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(payload)))
+        .andExpect(status().isBadRequest())
+        .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+        .andExpect(
+            MockMvcResultMatchers.jsonPath("$.validation_errors[*].message")
+                .value(Matchers.hasItems(expectedMessages)));
+  }
+
+  @Test
+  void testResetPassword_ReturnsOk() throws Exception {
+    // Arrange
+    PasswordRequestPayload payload = new PasswordRequestPayload("random-token", "New", "New");
+
+    // Act & Assert
+    mockMvc
+        .perform(
+            post("/api/v1/auth/reset-password")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(payload)))
+        .andExpect(status().isOk())
+        .andExpect(content().string("Password successfully updated"));
+
+    verify(authService, times(1)).resetPassword(payload);
+  }
+
+  @Test
+  void testResetPassword_ReturnsValidationMessagesOnInvalidPayload() throws Exception {
+    PasswordRequestPayload payload = new PasswordRequestPayload(null, null, null);
+    String[] expectedMessages = {
+      "Token cannot be null", "Password cannot be null", "Password confirmation cannot be null"
+    };
+    mockMvc
+        .perform(
+            post("/api/v1/auth/reset-password")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(payload)))
+        .andExpect(status().isBadRequest())
+        .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+        .andExpect(
+            MockMvcResultMatchers.jsonPath("$.validation_errors[*].message")
+                .value(Matchers.hasItems(expectedMessages)));
+  }
+
+  @Test
+  void testResetPassword_AddingBlank_ReturnsValidationMessagesOnInvalidPayload() throws Exception {
+    PasswordRequestPayload payload = new PasswordRequestPayload("Testing on it", "", "");
+    String[] expectedMessages = {
+      "Password cannot be blank", "Password confirmation cannot be blank"
+    };
+    mockMvc
+        .perform(
+            post("/api/v1/auth/reset-password")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(payload)))
         .andExpect(status().isBadRequest())
         .andExpect(content().contentType(MediaType.APPLICATION_JSON))
         .andExpect(

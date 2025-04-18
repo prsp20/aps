@@ -46,7 +46,7 @@ public class UserDetailsServiceTest {
     UserDetails userDetails = userDetailsService.loadUserByUsername(userAccount.getEmail());
 
     assertNotNull(userDetails);
-    assertEquals(userDetails.getUsername(), userAccount.getUsername());
+    assertEquals(userDetails.getUsername(), userAccount.getEmail());
     assertEquals(userDetails.getPassword(), userAccount.getPasswordHash());
   }
 
@@ -65,7 +65,6 @@ public class UserDetailsServiceTest {
   @Test
   public void loadUserByEmailShouldReturnNullWhenUserDoesNotExist() {
     when(userAccountRepository.findFirstByEmail(userAccount.getEmail())).thenReturn(userAccount);
-
     assertNull(userDetailsService.loadUserByUsername("random@mail.com"));
   }
 }

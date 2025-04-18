@@ -1,6 +1,5 @@
 package com.prakass.aps.security;
 
-import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -8,28 +7,45 @@ import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
 @EnableWebSecurity
-@AllArgsConstructor
 public class SecurityConfig {
 
-  private AuthenticationProvider authenticationProvider;
+  private final AuthenticationProvider authenticationProvider;
+
+  public SecurityConfig(AuthenticationProvider authenticationProvider) {
+    this.authenticationProvider = authenticationProvider;
+  }
 
   @Bean
-  public AuthenticationManager authenticationManager() throws Exception {
+  public AuthenticationManager authenticationManager() {
     return new ProviderManager(authenticationProvider);
   }
 
   @Bean
   public SecurityFilterChain securityFilterChain(
       HttpSecurity http, AuthenticationProvider authenticationProvider) throws Exception {
-    return http.authorizeHttpRequests(
-            authorize ->
-                authorize.requestMatchers("/api/v1/auth").permitAll().anyRequest().permitAll())
-        .csrf(csrf -> csrf.disable())
+    http.csrf(AbstractHttpConfigurer::disable)
+        .authorizeHttpRequests(
+            authorize -> {
+              authorize
+                  .requestMatchers(
+                      "/api/v1/auth/login",
+                      "/api/v1/auth/signup",
+                      "/api/v1/auth/refresh-token",
+                      "/api/v1/auth/request-password-reset",
+                      "/api/v1/auth/reset-password")
+                  .permitAll();
+              authorize.anyRequest().authenticated();
+            })
         .authenticationProvider(authenticationProvider)
-        .build();
+        .sessionManagement(
+            sessionManagement ->
+                sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+    return http.build();
   }
 }
