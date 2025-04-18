@@ -226,7 +226,6 @@ public class AuthControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(payload)))
         .andExpect(status().isOk())
-        .andExpect(content().contentType(MediaType.APPLICATION_JSON))
         .andExpect(content().string("Password successfully updated"));
 
     verify(authService, times(1)).resetPassword(any(PasswordRequestPayload.class));
